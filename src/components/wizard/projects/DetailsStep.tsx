@@ -51,11 +51,15 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
         role_id: data.roleId,
       });
     }
+    
   }, [
     data.stateId,
     data.projectTypeId,
     data.roleId,
   ]);
+
+  console.log('Customer Types Response:', customerTypesRes, isCustomerLoading);
+  console.log('customerid', data.customerTypeId);
 
 
   return (
