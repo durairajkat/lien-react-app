@@ -20,9 +20,10 @@ export interface ProjectWizardData {
 
   startDate: string;
   endDate: string;
-  completionDate: string;
-  firstFurnishingDate: string;
-  lastFurnishingDate: string;
+  furnishingDates: string[];
+  completionDate?: string;
+  firstFurnishingDate?: string;
+  lastFurnishingDate?: string;
 
   jobName: string;
   jobAddress: string;
@@ -61,6 +62,7 @@ export const initialProjectWizardData: ProjectWizardData = {
 
   startDate: '',
   endDate: '',
+  furnishingDates: [],
   completionDate: '',
   firstFurnishingDate: '',
   lastFurnishingDate: '',

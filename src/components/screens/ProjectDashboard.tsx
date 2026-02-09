@@ -1,19 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { FolderOpen, ArrowUpDown, FileText, ClipboardList, Trash2, Edit, Users, CheckSquare, Calendar, Search, Filter, X } from 'lucide-react';
-
-import { handleAddProject } from '../../utils/navigation';
 import { useNavigate } from 'react-router-dom';
-
-interface ProjectDashboardProps {
-    data: any;
-    onBack: () => void;
-    onCreateAnother: () => void;
-    onViewContacts: () => void;
-    onViewDocuments: () => void;
-    onViewTasks: () => void;
-    onViewProject: (projectId: string) => void;
-    onEditProject: (projectId: string) => void;
-}
+import { handleAddProject } from '../../utils/navigation';
 
 interface DBProject {
     id: string;
@@ -297,6 +285,7 @@ export default function ProjectDashboard() {
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <button
                             onClick={() => handleAddProject(navigate)}
+
                             className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors"
                         >
                             Create Your First Project
@@ -352,14 +341,14 @@ export default function ProjectDashboard() {
 
                                 <div className="flex gap-2 pt-3 border-t border-slate-200">
                                     <button
-                                        // onClick={() => onViewProject(project.id)}
+                                        onClick={() => onViewProject(project.id)}
                                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
                                     >
                                         <FolderOpen className="w-4 h-4" />
                                         View
                                     </button>
                                     <button
-                                        // onClick={() => onEditProject(project.id)}
+                                        onClick={() => onEditProject(project.id)}
                                         className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors"
                                     >
                                         <Edit className="w-4 h-4" />
@@ -430,14 +419,14 @@ export default function ProjectDashboard() {
                                                     <Calendar className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    // onClick={onViewTasks}
+                                                    onClick={onViewTasks}
                                                     className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                                     title="Tasks"
                                                 >
                                                     <ClipboardList className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    // onClick={onViewDocuments}
+                                                    onClick={onViewDocuments}
                                                     className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                                     title="Documents"
                                                 >
@@ -448,14 +437,14 @@ export default function ProjectDashboard() {
                                         <td className="px-3 py-3">
                                             <div className="flex items-center justify-center gap-1">
                                                 <button
-                                                    // onClick={() => onViewProject(project.id)}
+                                                    onClick={() => onViewProject(project.id)}
                                                     className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                                     title="View"
                                                 >
                                                     <FolderOpen className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    // onClick={() => onEditProject(project.id)}
+                                                    onClick={() => onEditProject(project.id)}
                                                     className="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition-colors"
                                                     title="Edit"
                                                 >

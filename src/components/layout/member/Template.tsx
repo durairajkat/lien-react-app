@@ -5,12 +5,13 @@ interface TemplateProps {
     content: React.ReactNode;
     wizardMode?: boolean;
     saveAndExit?: () => void;
+    saveAndExitDisabled?: boolean;
 }
 
 export const Template = (props: TemplateProps) => {
     return (
         <div className="flex h-screen">
-            <SideNavigation currentView={'home'} />
+            <SideNavigation />
             <div className="flex-1 overflow-auto">
                 <div className="min-h-screen bg-slate-50">
                     <NavigationHeader
@@ -19,6 +20,7 @@ export const Template = (props: TemplateProps) => {
                         showBackButton={false}
                         wizardMode={props.wizardMode ?? false}
                         saveAndExit={props.saveAndExit}
+                        saveAndExitDisabled={props.saveAndExitDisabled ?? false}
                     />
                     {/* Main content goes here */}
                     {props.content}

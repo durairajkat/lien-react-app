@@ -1,5 +1,6 @@
 import { api } from "../../services/api";
 import { ApiResponse } from "../../types/api";
+import { RemedyDateRequest, RemedyDateType } from "../../types/date";
 import { ProjectWizardData, WizardDraftResponse } from "../../types/project";
 
 export interface SaveWizardStepRequest {
@@ -43,10 +44,10 @@ export const projectApi = api.injectEndpoints({
     /* ---------- FINAL SUBMIT ---------- */
     submitProject: builder.mutation<
       ApiResponse<any>,
-      FinalProjectRequest
+      ProjectWizardData
     >({
       query: (body) => ({
-        url: "/projects",
+        url: "/save-project",
         method: "POST",
         body,
       }),
@@ -59,6 +60,16 @@ export const projectApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
+     getRemedyDates: builder.query<
+          ApiResponse<RemedyDateType[]>,
+          RemedyDateRequest
+        >({
+          query: (body) => ({
+            url: "/remedy-dates",
+            method: "POST",
+            body,
+          }),
+        }),
   }),
 
   overrideExisting: false,
@@ -71,4 +82,5 @@ export const {
   useGetProjectInfoQuery,
   useSubmitProjectMutation,
   useDeleteWizardDraftMutation,
+  useGetRemedyDatesQuery
 } = projectApi;

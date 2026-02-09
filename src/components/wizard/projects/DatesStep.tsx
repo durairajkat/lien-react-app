@@ -1,6 +1,7 @@
-import { ArrowRight, ArrowLeft, Info, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { ArrowRight, ArrowLeft, Info, Calendar } from 'lucide-react';
 import { ProjectWizardData } from '../../../types/project';
+import { useGetRemedyDatesQuery } from '../../../features/project/projectDataApi';
 
 interface DatesStepProps {
   data: ProjectWizardData;
@@ -12,6 +13,15 @@ interface DatesStepProps {
 
 export default function DatesStep({ data, onUpdate, onNext, onBack, onSaveAndExit }: DatesStepProps) {
   const [calculatedEndDate, setCalculatedEndDate] = useState('');
+
+  const { data: datesRes } = useGetRemedyDatesQuery({
+    state_id: data.stateId,
+    project_type_id: data.projectTypeId,
+    role_id: data.roleId,
+    customer_type_id: data.customerTypeId,
+  }, {
+    refetchOnMountOrArgChange: true,
+  });
 
   useEffect(() => {
     if (data.startDate && data.firstFurnishingDate) {
@@ -28,6 +38,7 @@ export default function DatesStep({ data, onUpdate, onNext, onBack, onSaveAndExi
       }
     }
   }, [data.startDate, data.firstFurnishingDate]);
+
 
   return (
     <div className="max-w-4xl mx-auto p-8 py-12">
@@ -78,72 +89,49 @@ export default function DatesStep({ data, onUpdate, onNext, onBack, onSaveAndExi
             </p>
           </div>
         </div>
+        {datesRes && datesRes.data.length > 0 && (
+          <div className="border-t border-slate-200 pt-6">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Furnishing Dates</h3>
+            <p className="text-sm text-slate-600 mb-4">
+              These dates are critical for lien deadline calculations.
+            </p>
 
-        <div className="border-t border-slate-200 pt-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">Furnishing Dates</h3>
-          <p className="text-sm text-slate-600 mb-4">
-            These dates are critical for lien deadline calculations. The first furnishing date starts your preliminary notice period.
-          </p>
+            <div className="grid md:grid-cols-2 gap-6">
+              {datesRes?.data?.map((date) => (
+                <div key={date.id}>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    {date.name} <span className="text-red-600">*</span>
+                  </label>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                First Furnishing Date <span className="text-red-600">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={data.firstFurnishingDate}
-                  onChange={(e) => onUpdate({ firstFurnishingDate: e.target.value })}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-              </div>
-              <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1">
-                <Info className="w-3 h-3" />
-                First date you provided labor or materials
-              </p>
-            </div>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={data.furnishingDates?.[date.id] || ""}
+                      onChange={(e) =>
+                        onUpdate({
+                          furnishingDates: {
+                            ...data.furnishingDates,
+                            [date.id]: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Last Furnishing Date
-              </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={data.lastFurnishingDate}
-                  onChange={(e) => onUpdate({ lastFurnishingDate: e.target.value })}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-              </div>
-              <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1">
-                <Info className="w-3 h-3" />
-                Last date you provided work (if completed)
-              </p>
+                    <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  </div>
+
+                  <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1">
+                    <Info className="w-3 h-3" />
+                    First date you provided labor or materials
+                  </p>
+                </div>
+              ))}
+
             </div>
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-2">
-            Project Completion Date
-          </label>
-          <div className="relative max-w-md">
-            <input
-              type="date"
-              value={data.completionDate}
-              onChange={(e) => onUpdate({ completionDate: e.target.value })}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-          </div>
-          <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1">
-            <Info className="w-3 h-3" />
-            When the entire project was completed (if applicable)
-          </p>
-        </div>
+        )}
       </div>
 
       <div className="flex justify-between items-center mt-8">

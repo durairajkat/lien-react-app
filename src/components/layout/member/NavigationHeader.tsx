@@ -13,6 +13,7 @@ interface NavigationHeaderProps {
     readonly showLogo?: boolean;
     readonly saveAndExit?: () => void;
     readonly wizardMode?: boolean;
+    readonly saveAndExitDisabled?: boolean;
 }
 
 export default function NavigationHeader({
@@ -23,7 +24,8 @@ export default function NavigationHeader({
     showHomeButton = false,
     showLogo = false,
     saveAndExit,
-    wizardMode = false
+    wizardMode = false,
+    saveAndExitDisabled = false
 }: NavigationHeaderProps) {
 
     const dispatch = useAppDispatch();
@@ -105,6 +107,7 @@ export default function NavigationHeader({
                         {wizardMode && saveAndExit && (
                             <button
                                 onClick={saveAndExit}
+                                disabled={saveAndExitDisabled}
                                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors font-medium shadow-sm"
                             >
                                 <Save className="w-4 h-4" />

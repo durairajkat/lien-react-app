@@ -1,11 +1,5 @@
 import { Check } from 'lucide-react';
 
-interface Step {
-  id: number;
-  label: string;
-  completed: boolean;
-}
-
 interface ProjectWizardStepperProps {
   currentStep: number;
   onStepClick: (step: number) => void;

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
+import Swal from "sweetalert2";
 import ProjectWizardStepper from "../wizard/projects/ProjectWizardStepper";
 import DocumentUploadFirstStep from "../wizard/projects/DocumentUploadFirstStep";
 import { initialProjectWizardData, ProjectWizardData } from "../../types/project";
@@ -8,15 +9,21 @@ import DetailsStep from "../wizard/projects/DetailsStep";
 import DatesStep from "../wizard/projects/DatesStep";
 import { useGetCountriesQuery, useGetProjectRolesQuery, useGetProjectTypesQuery } from "../../features/master/masterDataApi";
 import { Template } from "../layout/member/Template";
-import { useGetProjectInfoQuery } from "../../features/project/projectDataApi";
+import { useGetProjectInfoQuery, useSubmitProjectMutation } from "../../features/project/projectDataApi";
 import { SESSION_WIZARD_KEY } from "../../utils/constant";
 
 const ProjectCreateWizard = () => {
     const { projectId: routeProjectId } = useParams<{ projectId?: string }>();
+    const navigate = useNavigate();
     const resolvedProjectId = routeProjectId ? Number(routeProjectId) : undefined;
 
     const [currentStep, setCurrentStep] = useState(1);
     const [projectData, setProjectData] = useState<ProjectWizardData>(initialProjectWizardData);
+
+    const [
+        submitProject,
+        { isLoading: saveLoading},
+    ] = useSubmitProjectMutation();
 
 
     const { data: typesRes } = useGetProjectTypesQuery();
@@ -61,9 +68,34 @@ const ProjectCreateWizard = () => {
         });
     }, []);
 
-    const saveAndExit = () => {
-        // Implement save and exit logic here
-    }
+    const saveAndExit = async () => {
+        try {
+            const response = await submitProject(projectData).unwrap();
+
+            if (response.status) {
+                sessionStorage.removeItem(SESSION_WIZARD_KEY);
+                Swal.fire({
+                    icon: "success",
+                    title: "Saved",
+                    text: "Project saved successfully",
+                });
+                navigate("/dashboard");
+            }
+
+        } catch (err) {
+
+            const errorMessage =
+                (err as any)?.data?.errors?.projectError?.[0] ||
+                (err as any)?.data?.message ||
+                "Something went wrong";
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: errorMessage,
+            });
+        }
+    };
 
     useEffect(() => {
         if (countries && countries.length > 0 && !projectData.countryId) {
@@ -142,6 +174,7 @@ const ProjectCreateWizard = () => {
         }
             wizardMode={true}
             saveAndExit={saveAndExit}
+            saveAndExitDisabled={saveLoading}
         />
 
     )
