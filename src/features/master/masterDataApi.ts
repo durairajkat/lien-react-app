@@ -1,6 +1,6 @@
 import { api } from "../../services/api";
 import { ApiResponse } from "../../types/api";
-import { CustomerTier, CustomerTypeRequest, ProjectRole, ProjectType, State } from "../../types/master";
+import { County, CustomerTier, CustomerTypeRequest, ProjectRole, ProjectType, State } from "../../types/master";
 
 export const masterDataApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -27,6 +27,14 @@ export const masterDataApi = api.injectEndpoints({
       }),
       keepUnusedDataFor: 3600, 
     }),
+    getCounties: builder.query<ApiResponse<County[]>, { state_id: number }>({
+      query: (body) => ({
+        url: "/counties",
+        method: "POST",
+        body,
+      }),
+      keepUnusedDataFor: 3600, 
+    }),
     getCustomerTypes: builder.query<
       ApiResponse<CustomerTier[]>,
       CustomerTypeRequest
@@ -44,6 +52,7 @@ export const masterDataApi = api.injectEndpoints({
 
 export const {
   useGetStatesQuery,
+  useGetCountiesQuery,
   useGetProjectTypesQuery,
   useGetProjectRolesQuery,
   useGetCountriesQuery,

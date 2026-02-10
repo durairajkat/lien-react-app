@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, Info, Calendar } from 'lucide-react';
+import { Info, Calendar } from 'lucide-react';
 import { ProjectWizardData } from '../../../types/project';
 import { useGetRemedyDatesQuery } from '../../../features/project/projectDataApi';
+import SaveAndExitBtn from '../../Button/SaveAndExitBtn';
+import ContinueBtn from '../../Button/ContinueBtn';
+import BackBtn from '../../Button/BackBtn';
 
 interface DatesStepProps {
-  data: ProjectWizardData;
-  onUpdate: (data: Partial<ProjectWizardData>) => void;
-  onNext: () => void;
-  onBack: () => void;
-  onSaveAndExit?: () => void;
+  readonly data: ProjectWizardData;
+  readonly onUpdate: (data: Partial<ProjectWizardData>) => void;
+  readonly onNext: () => void;
+  readonly onBack: () => void;
+  readonly onSaveAndExit?: () => void;
+  readonly disabled: boolean;
 }
 
-export default function DatesStep({ data, onUpdate, onNext, onBack, onSaveAndExit }: DatesStepProps) {
+export default function DatesStep({ data, onUpdate, onNext, onBack, onSaveAndExit, disabled }: DatesStepProps) {
   const [calculatedEndDate, setCalculatedEndDate] = useState('');
 
   const { data: datesRes } = useGetRemedyDatesQuery({
@@ -135,29 +139,13 @@ export default function DatesStep({ data, onUpdate, onNext, onBack, onSaveAndExi
       </div>
 
       <div className="flex justify-between items-center mt-8">
-        <button
-          onClick={onBack}
-          className="px-6 py-3 text-slate-700 font-medium rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors flex items-center gap-2"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Back
-        </button>
+        <BackBtn onBack={onBack} />
         <div className="flex gap-3">
           {onSaveAndExit && (
-            <button
-              onClick={onSaveAndExit}
-              className="px-6 py-3 text-blue-600 font-medium rounded-lg border border-blue-600 hover:bg-blue-50 transition-colors"
-            >
-              Save & Exit to Dashboard
-            </button>
+            <SaveAndExitBtn onSaveAndExit={onSaveAndExit} disabled={disabled} />
           )}
-          <button
-            onClick={onNext}
-            className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg"
-          >
-            Continue
-            <ArrowRight className="w-5 h-5" />
-          </button>
+
+          <ContinueBtn onNext={onNext} />
         </div>
       </div>
     </div>

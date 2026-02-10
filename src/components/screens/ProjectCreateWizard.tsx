@@ -11,6 +11,8 @@ import { useGetCountriesQuery, useGetProjectRolesQuery, useGetProjectTypesQuery 
 import { Template } from "../layout/member/Template";
 import { useGetProjectInfoQuery, useSubmitProjectMutation } from "../../features/project/projectDataApi";
 import { SESSION_WIZARD_KEY } from "../../utils/constant";
+import DescriptionStep from "../wizard/projects/DescriptionStep";
+import ContractStep from "../wizard/projects/ContractStep";
 
 const ProjectCreateWizard = () => {
     const { projectId: routeProjectId } = useParams<{ projectId?: string }>();
@@ -22,7 +24,7 @@ const ProjectCreateWizard = () => {
 
     const [
         submitProject,
-        { isLoading: saveLoading},
+        { isLoading: saveLoading },
     ] = useSubmitProjectMutation();
 
 
@@ -148,6 +150,29 @@ const ProjectCreateWizard = () => {
             case 3:
                 return (
                     <DatesStep
+                        data={projectData}
+                        onUpdate={updateProjectData}
+                        onNext={nextStep}
+                        onBack={prevStep}
+                        onSaveAndExit={saveAndExit}
+                        disabled={saveLoading}
+                    />
+                );
+            case 4:
+                return (
+                    <DescriptionStep
+                        data={projectData}
+                        onUpdate={updateProjectData}
+                        countries={countries}
+                        onNext={nextStep}
+                        onBack={prevStep}
+                        onSaveAndExit={saveAndExit}
+                        disabled={saveLoading}
+                    />
+                );
+            case 5:
+                return (
+                    <ContractStep
                         data={projectData}
                         onUpdate={updateProjectData}
                         onNext={nextStep}

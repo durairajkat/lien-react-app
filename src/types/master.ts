@@ -7,6 +7,12 @@ export interface State {
   short_code?: string;
 }
 
+export interface County {
+  id: number;
+  name: string;
+  flip_code?: string;
+}
+
 export interface ProjectType {
   id: number;
   project_type: string;

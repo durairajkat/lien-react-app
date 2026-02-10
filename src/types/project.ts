@@ -28,9 +28,10 @@ export interface ProjectWizardData {
   jobName: string;
   jobAddress: string;
   jobCity: string;
-  jobState: string;
+  jobStateId: number;
   jobZip: string;
-  country: string;
+  jobCountyId: number;
+  jobCountryId: number;
 
   contractAmount: string;
   baseContractAmount: string;
@@ -70,9 +71,10 @@ export const initialProjectWizardData: ProjectWizardData = {
   jobName: '',
   jobAddress: '',
   jobCity: '',
-  jobState: '',
+  jobStateId: 0,
   jobZip: '',
-  country: 'United States',
+  jobCountryId: 0,
+  jobCountyId: 0,
 
   contractAmount: '',
   baseContractAmount: '',

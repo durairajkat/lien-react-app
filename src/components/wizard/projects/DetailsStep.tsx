@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
-import { ArrowRight, ArrowLeft, Info, Globe } from 'lucide-react';
+import { Info, Globe } from 'lucide-react';
 import { ProjectWizardData } from '../../../types/project';
 import { ProjectRole, ProjectType, State } from '../../../types/master';
 import { useGetStatesQuery, useLazyGetCustomerTypesQuery } from '../../../features/master/masterDataApi';
+import ContinueBtn from '../../Button/ContinueBtn';
+import BackBtn from '../../Button/BackBtn';
 
 interface DetailsStepProps {
   readonly data: ProjectWizardData;
@@ -12,7 +14,6 @@ interface DetailsStepProps {
   readonly countries: State[];
   readonly projectTypes: ProjectType[];
   readonly roles: ProjectRole[];
-  readonly onBackToDashboard?: () => void;
 }
 
 
@@ -119,7 +120,7 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
             value={data.stateId}
             onChange={(e) => onUpdate({ stateId: Number(e.target.value) })}
             className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={!data.country}
+            disabled={!data.countryId}
           >
             {/* Loading state */}
             {isStatesLoading || isStatesFetching ? (
@@ -137,7 +138,7 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
           </select>
           <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1">
             <Info className="w-3 h-3" />
-            Lien laws and deadlines vary significantly by {data.country === 'United Kingdom' ? 'region' : 'state'}
+            Lien laws and deadlines vary significantly by {data.countryId === 1 ? 'region' : 'state'}
           </p>
         </div>
 
@@ -236,21 +237,8 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
-        <button
-          onClick={onBack}
-          className="w-full sm:w-auto px-6 py-3 text-slate-700 font-medium rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Back
-        </button>
-        <button
-          onClick={onNext}
-          disabled={!isValid}
-          className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 shadow-lg"
-        >
-          Continue
-          <ArrowRight className="w-5 h-5" />
-        </button>
+        <BackBtn onBack={onBack}/>       
+        <ContinueBtn onNext={onNext} disabled={!isValid} />
       </div>
     </div>
   );
