@@ -20,6 +20,17 @@ export const validateEmail = (email: string): string | null => {
   return null;
 };
 
+
+export const isValidEmail = (email: string): boolean => {
+  const emailRegex =
+    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+  return emailRegex.test(email);
+};
+
+export const isValidPhone = (phone: string) => {
+  return /^\d{10}$/.test(phone);
+};
+
 export const validatePassword = (password: string): string | null => {
   if (!password) {
     return 'Password is required';

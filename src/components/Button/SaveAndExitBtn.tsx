@@ -1,5 +1,5 @@
 type SaveAndExitProps = {
-    readonly disabled: boolean;
+    readonly disabled?: boolean;
     readonly onSaveAndExit: () => void;
 }
 

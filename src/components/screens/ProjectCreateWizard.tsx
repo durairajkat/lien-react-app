@@ -13,6 +13,8 @@ import { useGetProjectInfoQuery, useSubmitProjectMutation } from "../../features
 import { SESSION_WIZARD_KEY } from "../../utils/constant";
 import DescriptionStep from "../wizard/projects/DescriptionStep";
 import ContractStep from "../wizard/projects/ContractStep";
+import ContactsSelectionStep from "../wizard/projects/ContactsSelectionStep";
+import { useGetProjectContactsQuery } from "../../features/project/ProjectContactApi";
 
 const ProjectCreateWizard = () => {
     const { projectId: routeProjectId } = useParams<{ projectId?: string }>();
@@ -40,6 +42,8 @@ const ProjectCreateWizard = () => {
             skip: !resolvedProjectId,
         }
     );
+    const { data: projectContactData, isFetching: isProjectContactDataFetching } = useGetProjectContactsQuery();
+
 
     const isEditMode = Boolean(resolvedProjectId);
 
@@ -86,10 +90,18 @@ const ProjectCreateWizard = () => {
 
         } catch (err) {
 
-            const errorMessage =
-                (err as any)?.data?.errors?.projectError?.[0] ||
-                (err as any)?.data?.message ||
-                "Something went wrong";
+            const errorResponse = (err as any)?.data;
+
+            let errorMessage = "Something went wrong";
+
+            if (errorResponse?.errors) {
+                // Get first validation error message dynamically
+                const firstErrorKey = Object.keys(errorResponse.errors)[0];
+                errorMessage = errorResponse.errors[firstErrorKey][0];
+            } else if (errorResponse?.message) {
+                errorMessage = errorResponse.message;
+            }
+
 
             Swal.fire({
                 icon: "error",
@@ -121,6 +133,15 @@ const ProjectCreateWizard = () => {
         }
 
     }, []);
+
+    useEffect(() => {
+        if (!projectContactData?.data) return;
+
+        updateProjectData({
+            projectContacts: projectContactData.data,
+        });
+
+    }, [projectContactData]);
 
     console.log('Project Data:', projectData);
 
@@ -178,6 +199,17 @@ const ProjectCreateWizard = () => {
                         onNext={nextStep}
                         onBack={prevStep}
                         onSaveAndExit={saveAndExit}
+                    />
+                );
+            case 6:
+                return (
+                    <ContactsSelectionStep
+                        data={projectData}
+                        onUpdate={updateProjectData}
+                        onNext={nextStep}
+                        onBack={prevStep}
+                        onSaveAndExit={saveAndExit}
+                        isProjectContactDataFetching={isProjectContactDataFetching}
                     />
                 );
 

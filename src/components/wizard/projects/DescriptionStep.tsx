@@ -32,6 +32,8 @@ export default function DescriptionStep({ data, onUpdate, onNext, onBack, onSave
         onUpdate({ jobCountyId: Number(county) });
     }
 
+    const isValid = data.jobAddress && data.jobName && data.jobCountyId && data.jobCity && data.jobZip;
+
     return (
         <div className="max-w-4xl mx-auto p-8 py-12">
             <div className="mb-8">
@@ -195,7 +197,7 @@ export default function DescriptionStep({ data, onUpdate, onNext, onBack, onSave
                         <SaveAndExitBtn onSaveAndExit={onSaveAndExit} disabled={disabled} />
                     )}
 
-                    <ContinueBtn onNext={onNext} />
+                    <ContinueBtn onNext={onNext} disabled={!isValid} />
                 </div>
             </div>
         </div>

@@ -1,3 +1,5 @@
+import { Customer, initialCustomer } from "./customer";
+
 export interface Task {
   id: string;
   action: string;
@@ -41,8 +43,10 @@ export interface ProjectWizardData {
   unpaidBalance: string;
   jobProjectNumber: string;
   materialServicesDescription: string;
-
-  selectedContacts: string[];
+  customerContacts: Customer[];
+  selectedCustomerContacts: Customer;
+  selectedProjectContacts: Customer[];
+  projectContacts: Customer[];
 
   documents: File[];
 
@@ -84,8 +88,10 @@ export const initialProjectWizardData: ProjectWizardData = {
   unpaidBalance: '',
   jobProjectNumber: '',
   materialServicesDescription: '',
-
-  selectedContacts: [],
+  customerContacts: [],
+  selectedCustomerContacts: initialCustomer,
+  selectedProjectContacts: [],
+  projectContacts: [],
 
   documents: [],
 
