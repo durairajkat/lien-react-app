@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import LoginScreen from "./components/screens/LoginScreen";
 import SignupScreen from "./components/screens/SignupScreen";
@@ -7,6 +7,8 @@ import Dashboard from "./components/screens/Dashboard";
 import PublicRoute from "./routes/PublicRoute";
 import ProjectCreateWizard from "./components/screens/ProjectCreateWizard";
 import OnboardingScreen from "./components/screens/OnboardingScreen";
+import { Template } from "./components/layout/member/Template";
+import QuickRemediesScreen from "./components/screens/QuickRemediesScreen";
 
 function App() {
   return (
@@ -21,22 +23,23 @@ function App() {
           <PublicRoute><LoginScreen /></PublicRoute>} />
         <Route path="/signup" element={
           <PublicRoute><SignupScreen /></PublicRoute>} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
         />
-        <Route
-          path="/project/create/:projectId?"
-          element={
-            <ProtectedRoute>
-              <ProjectCreateWizard />
-            </ProtectedRoute>
-          }
+        <Route path="/project/create/:projectId?" element={
+          <ProtectedRoute>
+            <ProjectCreateWizard />
+          </ProtectedRoute>
+        }
         />
+        <Route path="/quick-remedies" element={
+          <ProtectedRoute><Template content={<QuickRemediesScreen />} /></ProtectedRoute>
+        }
+        />
+
         <Route path="/tour" element={<ProtectedRoute><OnboardingScreen /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>

@@ -59,10 +59,6 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
     data.roleId,
   ]);
 
-  console.log('Customer Types Response:', customerTypesRes, isCustomerLoading);
-  console.log('customerid', data.customerTypeId);
-
-
   return (
     <div className="max-w-4xl mx-auto px-4 md:px-8 py-6 md:py-12">
       <div className="mb-6 md:mb-8">
