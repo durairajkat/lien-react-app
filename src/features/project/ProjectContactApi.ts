@@ -8,10 +8,18 @@ export const ProjectContactApi = api.injectEndpoints({
             query: () => "/project-contacts-all",
             keepUnusedDataFor: 3600,
         }),
+        uploadCustomerExcel: builder.mutation<any, FormData>({
+            query: (formData) => ({
+                url: "/upload-customer-contact-excel",
+                method: "POST",
+                body: formData,
+            }),
+        }),
     }),
     overrideExisting: false,
 });
 
 export const {
-    useGetProjectContactsQuery
+    useGetProjectContactsQuery,
+    useUploadCustomerExcelMutation
 } = ProjectContactApi;

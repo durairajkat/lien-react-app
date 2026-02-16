@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Info, Globe } from 'lucide-react';
 import { ProjectWizardData } from '../../../types/project';
 import { ProjectRole, ProjectType, State } from '../../../types/master';
@@ -30,9 +30,9 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
   ] = useLazyGetCustomerTypesQuery();
 
 
-  const handleCountryChange = (country: string) => {
+  const handleCountryChange = useCallback((country: string) => {
     onUpdate({ countryId: Number(country), stateId: 0 });
-  };
+  }, []);
 
   const isValid = data.projectName && data.countryId && data.stateId && data.projectTypeId && data.roleId && data.customerTypeId;
   const canSelectRole = Boolean(data.stateId && data.projectTypeId);

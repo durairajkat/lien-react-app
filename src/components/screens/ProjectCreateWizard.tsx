@@ -15,6 +15,7 @@ import DescriptionStep from "../wizard/projects/DescriptionStep";
 import ContractStep from "../wizard/projects/ContractStep";
 import ContactsSelectionStep from "../wizard/projects/ContactsSelectionStep";
 import { useGetProjectContactsQuery } from "../../features/project/ProjectContactApi";
+import DocumentsStep from "../wizard/projects/DocumentsStep";
 
 const ProjectCreateWizard = () => {
     const { projectId: routeProjectId } = useParams<{ projectId?: string }>();
@@ -23,12 +24,12 @@ const ProjectCreateWizard = () => {
 
     const [currentStep, setCurrentStep] = useState(1);
     const [projectData, setProjectData] = useState<ProjectWizardData>(initialProjectWizardData);
+    const [documentData, setDocumentData] = useState<File[]>([]);
 
     const [
         submitProject,
         { isLoading: saveLoading },
     ] = useSubmitProjectMutation();
-
 
     const { data: typesRes } = useGetProjectTypesQuery();
     const { data: rolesRes } = useGetProjectRolesQuery();
@@ -43,7 +44,6 @@ const ProjectCreateWizard = () => {
         }
     );
     const { data: projectContactData, isFetching: isProjectContactDataFetching } = useGetProjectContactsQuery();
-
 
     const isEditMode = Boolean(resolvedProjectId);
 
@@ -73,35 +73,55 @@ const ProjectCreateWizard = () => {
             return updatedData;
         });
     }, []);
-
+    //  sessionStorage.removeItem(SESSION_WIZARD_KEY);
     const saveAndExit = async () => {
         try {
-            const response = await submitProject(projectData).unwrap();
+
+            const formData = new FormData();
+
+            // Append project fields except documents
+            Object.entries(projectData).forEach(([key, value]) => {
+                if (key === "documents") return; // skip old empty array
+
+                if (value === null || value === undefined) return;
+
+                if (typeof value === "object") {
+                    formData.append(key, JSON.stringify(value));
+                } else {
+                    formData.append(key, String(value));
+                }
+            });
+
+            // Append real files
+            documentData.forEach((file) => {
+                formData.append("documents[]", file);
+            });
+
+            const response = await submitProject(formData).unwrap();
 
             if (response.status) {
                 sessionStorage.removeItem(SESSION_WIZARD_KEY);
+
                 Swal.fire({
                     icon: "success",
                     title: "Saved",
                     text: "Project saved successfully",
                 });
+
                 navigate("/dashboard");
             }
 
-        } catch (err) {
-
-            const errorResponse = (err as any)?.data;
+        } catch (err: any) {
+            const errorResponse = err?.data;
 
             let errorMessage = "Something went wrong";
 
             if (errorResponse?.errors) {
-                // Get first validation error message dynamically
                 const firstErrorKey = Object.keys(errorResponse.errors)[0];
                 errorMessage = errorResponse.errors[firstErrorKey][0];
             } else if (errorResponse?.message) {
                 errorMessage = errorResponse.message;
             }
-
 
             Swal.fire({
                 icon: "error",
@@ -143,7 +163,36 @@ const ProjectCreateWizard = () => {
 
     }, [projectContactData]);
 
+
+    useEffect(() => {
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            event.returnValue = "";
+        };
+
+        const handlePopState = () => {
+            const confirmLeave = window.confirm(
+                "If you leave this page, your progress will be lost. Continue?"
+            );
+
+            if (!confirmLeave) {
+                window.history.pushState(null, "", window.location.href);
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        window.history.pushState(null, "", window.location.href);
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, []);
+
     console.log('Project Data:', projectData);
+    console.log(' documentData ', documentData);
 
     const renderWizardStep = () => {
         switch (currentStep) {
@@ -210,6 +259,16 @@ const ProjectCreateWizard = () => {
                         onBack={prevStep}
                         onSaveAndExit={saveAndExit}
                         isProjectContactDataFetching={isProjectContactDataFetching}
+                    />
+                );
+            case 7:
+                return (
+                    <DocumentsStep
+                        data={documentData}
+                        onUpdate={setDocumentData}
+                        onNext={nextStep}
+                        onBack={prevStep}
+                        onSaveAndExit={saveAndExit}
                     />
                 );
 

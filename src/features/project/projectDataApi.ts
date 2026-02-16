@@ -44,7 +44,7 @@ export const projectApi = api.injectEndpoints({
     /* ---------- FINAL SUBMIT ---------- */
     submitProject: builder.mutation<
       ApiResponse<any>,
-      ProjectWizardData
+      FormData
     >({
       query: (body) => ({
         url: "/save-project",

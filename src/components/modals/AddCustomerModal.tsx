@@ -1,10 +1,10 @@
-import { X, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { X, Plus } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { Customer, CustomerContact, initialCustomer } from '../../types/customer';
 import { useGetContactRolesQuery, useGetStatesQuery } from '../../features/master/masterDataApi';
 import { ProjectWizardData } from '../../types/project';
-import { ContactRole } from '../../types/contact';
 import { isValidEmail, isValidPhone } from '../../utils/validation';
+import CustomerContactListForm from '../Parts/CustomerContactListForm';
 
 interface AddCustomerModalProps {
     readonly isOpen: boolean;
@@ -30,12 +30,15 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
         type: "customer",
     });
 
-    if (!isOpen) return null;
-
-    const updateCustomer = (field: keyof Customer, value: any) => {
-        setCustomer({ ...customer, [field]: value });
-    };
-
+    const updateCustomer = useCallback(
+        (field: keyof Customer, value: any) => {
+            setCustomer((prev) => ({
+                ...prev,
+                [field]: value,
+            }));
+        },
+        []
+    );
     const validateForm = (): boolean => {
         const errors: Record<string, string> = {};
         customer.contacts.forEach((contact, index) => {
@@ -77,7 +80,7 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
     const removeContact = (index: number) => {
         const updatedContacts = customer.contacts.filter((_, i) => i !== index);
         setCustomer({ ...customer, contacts: updatedContacts });
-    };
+    }
 
     const handleSave = () => {
         onSave(customer);
@@ -85,7 +88,7 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
         onClose();
     };
 
-    const validateContactField = (
+    const validateContactField = useCallback((
         index: number,
         field: "email" | "directPhone" | "cell",
         value: string
@@ -115,14 +118,15 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
                 }
             }
 
-            // clean empty index object
             if (Object.keys(updated[index]).length === 0) {
                 delete updated[index];
             }
 
             return updated;
         });
-    };
+    }, []);
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -280,142 +284,14 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
                             </button>
                         </div>
 
-                        {customer.contacts.length > 0 && (
-                            <div className="overflow-x-auto">
-                                <table className="w-full border border-slate-300">
-                                    <thead className="bg-slate-100">
-                                        <tr>
-                                            <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-300">
-                                                Title
-                                            </th>
-                                            <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-300">
-                                                First Name
-                                            </th>
-                                            <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-300">
-                                                Last Name
-                                            </th>
-                                            <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-300">
-                                                Email
-                                            </th>
-                                            <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-300">
-                                                Direct Phone
-                                            </th>
-                                            <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-300">
-                                                Cell
-                                            </th>
-                                            <th className="px-3 py-2 text-left text-sm font-semibold text-slate-700 border border-slate-300">
-                                                Action
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {customer.contacts.map((contact, index) => (
-                                            <tr key={index} className="bg-white">
-                                                <td className="px-3 py-2 border border-slate-300">
-                                                    <select
-                                                        value={contact.role_id}
-                                                        onChange={(e) => updateContact(index, 'role_id', Number(e.target.value))}
-                                                        className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
-                                                    >
-                                                        {customerContactRoles?.data?.map((role: ContactRole) => (
-                                                            <option key={role.id} value={role.id}>
-                                                                {role.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </td>
-                                                <td className="px-3 py-2 border border-slate-300">
-                                                    <input
-                                                        type="text"
-                                                        value={contact.firstName}
-                                                        onChange={(e) => updateContact(index, 'firstName', e.target.value)}
-                                                        placeholder="N/A"
-                                                        className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
-                                                    />
-                                                </td>
-                                                <td className="px-3 py-2 border border-slate-300">
-                                                    <input
-                                                        type="text"
-                                                        value={contact.lastName}
-                                                        onChange={(e) => updateContact(index, 'lastName', e.target.value)}
-                                                        placeholder="N/A"
-                                                        className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
-                                                    />
-                                                </td>
-                                                <td className="px-3 py-2 border border-slate-300">
-                                                    <input
-                                                        type="email"
-                                                        value={contact.email}
-                                                        onChange={(e) => {
-                                                            updateContact(index, "email", e.target.value);
-                                                            validateContactField(index, "email", e.target.value);
-                                                        }}
-
-                                                        placeholder="N/A"
-                                                        className={`w-full px-2 py-1 border rounded text-sm focus:ring-2 focus:ring-blue-500
-      ${contactErrors[index]?.email ? "border-red-500" : "border-slate-300"}
-    `}
-                                                    />
-                                                    {contactErrors[index]?.email && (
-                                                        <p className="text-red-500 text-xs mt-1">
-                                                            {contactErrors[index].email}
-                                                        </p>
-                                                    )}
-                                                </td>
-                                                <td className="px-3 py-2 border border-slate-300">
-                                                    <input
-                                                        type="text"
-                                                        value={contact.directPhone}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 10);
-                                                            updateContact(index, "directPhone", value);
-                                                            validateContactField(index, "directPhone", value);
-                                                        }}
-                                                        placeholder="Direct Phone"
-                                                        className={`w-full px-2 py-1 border rounded text-sm focus:ring-2 focus:ring-blue-500
-      ${contactErrors[index]?.directPhone ? "border-red-500" : "border-slate-300"}
-    `}
-                                                    />
-                                                    {contactErrors[index]?.directPhone && (
-                                                        <p className="text-red-500 text-xs mt-1">
-                                                            {contactErrors[index].directPhone}
-                                                        </p>
-                                                    )}
-                                                </td>
-                                                <td className="px-3 py-2 border border-slate-300">
-                                                    <input
-                                                        type="text"
-                                                        value={contact.cell}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 10);
-                                                            updateContact(index, "cell", value);
-                                                            validateContactField(index, "cell", value);
-                                                        }}
-                                                        placeholder="Cell Phone"
-                                                        className={`w-full px-2 py-1 border rounded text-sm focus:ring-2 focus:ring-blue-500
-      ${contactErrors[index]?.cell ? "border-red-500" : "border-slate-300"}
-    `}
-                                                    />
-                                                    {contactErrors[index]?.cell && (
-                                                        <p className="text-red-500 text-xs mt-1">
-                                                            {contactErrors[index].cell}
-                                                        </p>
-                                                    )}
-                                                </td>
-                                                <td className="px-3 py-2 border border-slate-300 text-center">
-                                                    <button
-                                                        onClick={() => removeContact(index)}
-                                                        className="text-red-600 hover:text-red-800 transition-colors"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
+                        <CustomerContactListForm
+                            customerContactRoles={customerContactRoles?.data ?? []}
+                            contacts={customer?.contacts}
+                            updateContact={updateContact}
+                            contactErrors={contactErrors}
+                            removeContact={removeContact}
+                            validateContactField={validateContactField}
+                        />
                     </div>
                 </div>
 

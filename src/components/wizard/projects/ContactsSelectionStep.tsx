@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ArrowRight, ArrowLeft, Plus, User, Check, Building2 } from 'lucide-react';
 import { ProjectWizardData } from '../../../types/project';
 import { Customer } from '../../../types/customer';
 import AddCustomerModal from '../../modals/AddCustomerModal';
 import AddProjectContactsModal from '../../modals/AddProjectContactsModal';
+import { useUploadCustomerExcelMutation } from '../../../features/project/ProjectContactApi';
 
 interface ContactsSelectionStepProps {
     readonly data: ProjectWizardData;
@@ -17,20 +18,59 @@ interface ContactsSelectionStepProps {
 export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, onSaveAndExit, isProjectContactDataFetching }: ContactsSelectionStepProps) {
     const [contacts, setContacts] = useState<Customer[]>(data.projectContacts ?? []);
     const [customers, setCustomers] = useState<Customer[]>(data.customerContacts);
-    const [loading, setLoading] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showCustomerModal, setShowCustomerModal] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    const fetchContacts = async () => {
+    const [uploadCustomerExcel, { isLoading }] =
+        useUploadCustomerExcelMutation();
 
-        setLoading(true);
-        setLoading(false);
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
     };
 
-    const fetchCustomers = async () => {
+    const handleFileChange = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const result = await uploadCustomerExcel(formData).unwrap();
+            console.log('  result ', result);
+            setCustomers(result.data);
+            if (result.data) {
+                const customersFromExcel = result.data;
+                const currentCustomers = Array.isArray(data.customerContacts)
+                    ? data.customerContacts
+                    : [];
+
+                // Merge existing + new
+                const updatedCustomers: Customer[] = [
+                    ...currentCustomers,
+                    ...customersFromExcel,
+                ];
+
+                onUpdate({
+                    customerContacts: updatedCustomers,
+                    selectedCustomerContacts:
+                        updatedCustomers.length === 1
+                            ? updatedCustomers[0]
+                            : data.selectedCustomerContacts,
+                });
+
+                setCustomers(updatedCustomers);
+            }
+        } catch (error) {
+            console.error("Upload failed:", error);
+            alert("Upload failed");
+        }
+
+        e.target.value = "";
     };
-
 
     const handleSaveCustomer = async (customer: Customer) => {
         const currentCustomers = Array.isArray(data.customerContacts)
@@ -50,20 +90,19 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
         setCustomers(updatedCustomers);
     };
 
-    const handleSelectCustomer = (selectedId: number) => {
+    const handleSelectCustomer = useCallback((selectedId: number) => {
         const selectedCustomer = data.customerContacts.find(x => x.id == selectedId);
         onUpdate({
             selectedCustomerContacts: selectedCustomer
         });
-    }
-
+    }, []);
 
     const handleSaveProjectContacts = async (customer: Customer) => {
         const currentCustomers = Array.isArray(data.projectContacts)
             ? data.projectContacts
             : [];
         let updatedCustomers: Customer[];
-        updatedCustomers = [...currentCustomers, {...customer, is_new: true}];
+        updatedCustomers = [...currentCustomers, { ...customer, is_new: true }];
 
         onUpdate({
             projectContacts: updatedCustomers,
@@ -98,9 +137,7 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
         return data.selectedProjectContacts?.some(
             (contact) => contact.id === contactId
         ) ?? false;
-    };
-
-    console.log(' contacts ', contacts);
+    }
 
     return (
         <div className="max-w-4xl mx-auto p-8 py-12">
@@ -113,16 +150,43 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
 
             <div className="bg-white rounded-xl border border-slate-200 p-8">
                 <div className="mb-8">
-                    <h3 className="text-lg font-bold text-blue-600 mb-4">Customer Information</h3>
-                    {customers.length === 0 ? (
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-bold text-blue-600 mb-4">Customer Information</h3>
+                        <div>
+                            <a
+                                href="/sample_customer_contacts.xlsx"
+                                download
+                                className="text-blue-600 underline mx-4"
+                            >
+                                Download Sample File
+                            </a>
+                            <button
+                                onClick={handleUploadClick}
+                                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                            >
+                                Upload Customer
+                            </button>
+                            <input
+                                type="file"
+                                accept=".xls,.xlsx,.csv"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                className="hidden"
+                            />
+                        </div>
+                    </div>
+                    {customers.length === 0 || isLoading ? (
                         <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 mb-4">
                             <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                            <p className="text-slate-600 font-medium mb-1">No customers found</p>
-                            <p className="text-sm text-slate-500">Click "Add New Customer" to get started</p>
+                            {isLoading ? <p className="text-slate-600 font-medium mb-1"> Uploading... </p> :
+                                (<>
+                                    <p className="text-slate-600 font-medium mb-1">No customers found</p>
+                                    <p className="text-sm text-slate-500">Click "Add New Customer" to get started</p>
+                                </>)}
                         </div>
                     ) : (
                         <select
-                            value={data.selectedCustomerContacts.id}
+                            value={data?.selectedCustomerContacts?.id}
                             onChange={(e) => handleSelectCustomer(Number(e.target.value))}
                             className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
                         >
@@ -140,6 +204,7 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
                     >
                         Add New Customer
                     </button>
+
                 </div>
 
                 <div className="border-t border-slate-200 pt-6">

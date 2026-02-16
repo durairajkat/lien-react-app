@@ -9,3 +9,4 @@ export interface ContactRole {
   name: string;
   role_type: ContactRoleType;
 }
+export const MAX_FILE_SIZE = 10 * 1024 * 1024;

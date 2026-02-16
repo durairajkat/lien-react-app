@@ -37,5 +37,6 @@ export const initialCustomer: Customer = {
   fax: '',
   contacts: [],
   role_id: 0,
-  is_new: false
+  is_new: false,
+  id: 0
 };

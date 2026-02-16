@@ -5,6 +5,7 @@ import { useGetRemedyDatesQuery } from '../../../features/project/projectDataApi
 import SaveAndExitBtn from '../../Button/SaveAndExitBtn';
 import ContinueBtn from '../../Button/ContinueBtn';
 import BackBtn from '../../Button/BackBtn';
+import RemedyDates from '../../Parts/RemedyDates';
 
 interface DatesStepProps {
   readonly data: ProjectWizardData;
@@ -42,7 +43,6 @@ export default function DatesStep({ data, onUpdate, onNext, onBack, onSaveAndExi
       }
     }
   }, [data.startDate, data.firstFurnishingDate]);
-
 
   return (
     <div className="max-w-4xl mx-auto p-8 py-12">
@@ -101,37 +101,7 @@ export default function DatesStep({ data, onUpdate, onNext, onBack, onSaveAndExi
             </p>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {datesRes?.data?.map((date) => (
-                <div key={date.id}>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    {date.name} <span className="text-red-600">*</span>
-                  </label>
-
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={data.furnishingDates?.[date.id] || ""}
-                      onChange={(e) =>
-                        onUpdate({
-                          furnishingDates: {
-                            ...data.furnishingDates,
-                            [date.id]: e.target.value,
-                          },
-                        })
-                      }
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-
-                    <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                  </div>
-
-                  <p className="text-xs text-slate-500 mt-1.5 flex items-center gap-1">
-                    <Info className="w-3 h-3" />
-                    First date you provided labor or materials
-                  </p>
-                </div>
-              ))}
-
+              <RemedyDates dates={datesRes.data} onUpdate={onUpdate} data={data} />
             </div>
           </div>
 
