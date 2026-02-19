@@ -5,6 +5,7 @@ export interface State {
   name: string;
   code: string;
   short_code?: string;
+  country_id?: number;
 }
 
 export interface County {
@@ -44,3 +45,7 @@ export interface CustomerTier {
   customer: CustomerType;
 }
 
+export interface CommonData {
+  id:number;
+  name: string;
+}

@@ -56,6 +56,12 @@ export const masterDataApi = api.injectEndpoints({
       }),
       keepUnusedDataFor: 3600,
     }),
+    getUsedStates: builder.query<
+      ApiResponse<State[]>, void
+    >({
+      query: () => "/get-used-states",
+      keepUnusedDataFor: 3600,
+    }),
   }),
 
   overrideExisting: false,
@@ -68,5 +74,7 @@ export const {
   useGetProjectRolesQuery,
   useGetCountriesQuery,
   useLazyGetCustomerTypesQuery,
-  useGetContactRolesQuery
+  useGetContactRolesQuery,
+  useGetCustomerTypesQuery,
+  useGetUsedStatesQuery
 } = masterDataApi;

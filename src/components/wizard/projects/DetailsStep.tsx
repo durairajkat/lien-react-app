@@ -31,7 +31,8 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
 
 
   const handleCountryChange = useCallback((country: string) => {
-    onUpdate({ countryId: Number(country), stateId: 0 });
+    const countryName = countries.find(x => x.id == Number(country));
+    onUpdate({ countryId: Number(country), stateId: 0, country: countryName?.name ?? '' });
   }, []);
 
   const isValid = data.projectName && data.countryId && data.stateId && data.projectTypeId && data.roleId && data.customerTypeId;
@@ -44,7 +45,9 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
       data.roleId
     ) {
       // reset selected customer before refetch
-      onUpdate({ customerTypeId: undefined });
+      const stateName = states?.data?.find(x => x.id === data.stateId);
+      onUpdate({ customerTypeId: undefined, state: stateName?.name ?? '' });
+
 
       fetchCustomerTypes({
         state_id: data.stateId,

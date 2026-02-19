@@ -15,3 +15,10 @@ export interface RemedyDateRequest {
   state_id: number;
   project_id?: number;
 }
+
+export interface ProjectDateResponse {
+  id: number;
+  project_id: number;
+  date_id: number;
+  date_value: string;
+}

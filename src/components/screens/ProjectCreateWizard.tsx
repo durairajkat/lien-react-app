@@ -16,6 +16,10 @@ import ContractStep from "../wizard/projects/ContractStep";
 import ContactsSelectionStep from "../wizard/projects/ContactsSelectionStep";
 import { useGetProjectContactsQuery } from "../../features/project/ProjectContactApi";
 import DocumentsStep from "../wizard/projects/DocumentsStep";
+import DeadlinesStep from "../wizard/projects/DeadlinesStep";
+import TasksStep from "../wizard/projects/TasksStep";
+import SummaryStep from "../wizard/projects/SummaryStep";
+import InfoSheetStep from "../wizard/projects/InfoSheetStep";
 
 const ProjectCreateWizard = () => {
     const { projectId: routeProjectId } = useParams<{ projectId?: string }>();
@@ -33,10 +37,7 @@ const ProjectCreateWizard = () => {
 
     const { data: typesRes } = useGetProjectTypesQuery();
     const { data: rolesRes } = useGetProjectRolesQuery();
-    const { data: countriesRes } = useGetCountriesQuery(undefined, {
-        refetchOnFocus: false,
-        refetchOnReconnect: false
-    });
+    const { data: countriesRes } = useGetCountriesQuery();
     const { data, isLoading } = useGetProjectInfoQuery(
         resolvedProjectId ? { projectId: resolvedProjectId } : skipToken,
         {
@@ -269,6 +270,52 @@ const ProjectCreateWizard = () => {
                         onNext={nextStep}
                         onBack={prevStep}
                         onSaveAndExit={saveAndExit}
+                    />
+                );
+            case 8:
+                return (
+                    <DeadlinesStep
+                        data={projectData}
+                        onNext={nextStep}
+                        onBack={prevStep}
+                        onSaveAndExit={saveAndExit}
+                    />
+                );
+            case 9:
+                return (
+                    <TasksStep
+                        data={projectData}
+                        onUpdate={updateProjectData}
+                        onNext={nextStep}
+                        onBack={prevStep}
+                        onSaveAndExit={saveAndExit}
+                    />
+                );
+
+            case 10:
+                return (
+                    <SummaryStep
+                        data={projectData}
+                        countries={countries}
+                        projectTypes={projectTypes}
+                        roles={roles}
+                        onNext={nextStep}
+                        onBack={prevStep}
+                        onEdit={goToStep}
+                        onSaveAndExit={saveAndExit}
+                        documentData={documentData}
+                    />
+                );
+            case 11:
+                return (
+                    <InfoSheetStep
+                        data={projectData}
+                        onUpdate={updateProjectData}
+                        onBack={prevStep}
+                        onComplete={saveAndExit}
+                        countries={countries}
+                        projectTypes={projectTypes}
+                        saveLoading={saveLoading}
                     />
                 );
 

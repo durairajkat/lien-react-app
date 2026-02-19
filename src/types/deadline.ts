@@ -21,3 +21,15 @@ export interface CalculatedDeadline {
 export interface CalculatedDeadlineResponse {
     deadlines: CalculatedDeadline[]
 }
+
+export interface ProjectContractResponse {
+    id: number;
+    project_id: number;
+    base_amount: string;
+    extra_amount: string;
+    credits: string;
+    waiver: string;
+    total_claim_amount: string;
+    job_no: string;
+    general_description: string;
+}

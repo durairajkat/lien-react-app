@@ -9,7 +9,8 @@ import { DBProject } from "../../types/project";
 import ActionColumn from "../Parts/Project/ActionColumn";
 import QuickActionColumn from "../Parts/Project/QuickActionColumn";
 
-export default function ProjectDashboard() {
+const RecentProjectsScreen = () => {
+
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [sortModel, setSortModel] = useState<GridSortModel>([]);
@@ -77,7 +78,7 @@ export default function ProjectDashboard() {
             field: "action", headerName: " Action", flex: 1, sortable: false,
             renderCell: (params) => {
                 return (
-                    <ActionColumn /> 
+                    <ActionColumn />
                 );
             }
         }
@@ -99,7 +100,7 @@ export default function ProjectDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-8">
             <div className="mb-6">
                 <p className="text-lg text-slate-600">
-                    Manage and track all of your active projects
+                    View your most recently created projects
                 </p>
             </div>
 
@@ -168,3 +169,5 @@ export default function ProjectDashboard() {
         </div>
     )
 }
+
+export default RecentProjectsScreen

@@ -1,7 +1,7 @@
 import { api } from "../../services/api";
 import { ApiResponse } from "../../types/api";
 import { RemedyDateRequest, RemedyDateType } from "../../types/date";
-import { ProjectWizardData, WizardDraftResponse } from "../../types/project";
+import { ProjectListRequest, ProjectStatusCount, ProjectWizardData, WizardDraftResponse } from "../../types/project";
 
 export interface SaveWizardStepRequest {
   draft_id?: number;
@@ -33,7 +33,7 @@ export const projectApi = api.injectEndpoints({
     /* ---------- GET DRAFT (RESUME) ---------- */
     getProjectInfo: builder.query<
       ApiResponse<WizardDraftResponse>,
-      {projectId: number}
+      { projectId: number }
     >({
       query: (params) => ({
         url: "/projects/info",
@@ -51,6 +51,7 @@ export const projectApi = api.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["Projects", "ProjectStatus"],
     }),
 
     /* ---------- DELETE DRAFT AFTER SUBMIT ---------- */
@@ -60,16 +61,39 @@ export const projectApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
-     getRemedyDates: builder.query<
-          ApiResponse<RemedyDateType[]>,
-          RemedyDateRequest
-        >({
-          query: (body) => ({
-            url: "/remedy-dates",
-            method: "POST",
-            body,
-          }),
-        }),
+    getRemedyDates: builder.query<
+      ApiResponse<RemedyDateType[]>,
+      RemedyDateRequest
+    >({
+      query: (body) => ({
+        url: "/remedy-dates",
+        method: "POST",
+        body,
+      }),
+    }),
+    /* ---------- PROJECT STATUS COUNT ---------- */
+    getProjectStatusCount: builder.query<
+      ApiResponse<ProjectStatusCount>,
+      void
+    >({
+      query: () => ({
+        url: "/total-project-count",
+        method: "GET",
+      }),
+      providesTags: ["ProjectStatus"],
+    }),
+    getProjects: builder.query<
+      ApiResponse<any>,
+      ProjectListRequest
+    >({
+      query: (params) => ({
+        url: "/projects",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Projects"],
+    }),
+
   }),
 
   overrideExisting: false,
@@ -82,5 +106,7 @@ export const {
   useGetProjectInfoQuery,
   useSubmitProjectMutation,
   useDeleteWizardDraftMutation,
-  useGetRemedyDatesQuery
+  useGetRemedyDatesQuery,
+  useGetProjectStatusCountQuery,
+  useGetProjectsQuery
 } = projectApi;

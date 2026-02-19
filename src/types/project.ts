@@ -1,20 +1,26 @@
 import { Customer, initialCustomer } from "./customer";
+import { ProjectDateResponse } from "./date";
+import { ProjectContractResponse } from "./deadline";
 
 export interface Task {
   id: string;
+  actionId?: number;
+  assignedId?: number;
+  assignedTo?: string;
   action: string;
+  otherName?: string;
   dueDate: string;
   emailAlert: boolean;
   comment: string;
-  waiverAmount: string;
-  receivableStatus: string;
-  deadlineCalculationStatus: string;
+  isNew?: boolean;
 }
 
 export interface ProjectWizardData {
   projectId?: number;
   projectName: string;
   countryId: number;
+  country?: string;
+  state?: string;
   stateId: number;
   projectTypeId: number;
   roleId: number;
@@ -51,6 +57,7 @@ export interface ProjectWizardData {
   documents: File[];
 
   tasks: Task[];
+  removedTasks: string[];
 
   customerSignature: string;
   signatureDate: string;
@@ -96,9 +103,12 @@ export const initialProjectWizardData: ProjectWizardData = {
   documents: [],
 
   tasks: [],
+  removedTasks: [],
 
   customerSignature: '',
   signatureDate: '',
+  country: '',
+  state: '',
 };
 
 
@@ -107,4 +117,61 @@ export interface WizardDraftResponse {
   step?: number;
   data: ProjectWizardData;
   isDraft: boolean;
+}
+
+export interface ProjectStatusCount {
+  total: number;
+  inprogress: number;
+  active: number;
+  completed: number;
+}
+
+export interface ProjectListRequest {
+  page: number;
+  per_page: number;
+  search?: string;
+  sort_by?: string;
+  sort_dir?: "asc" | "desc";
+  status?: string;
+  state_id?: string;
+}
+
+export interface TaskResponse {
+  id: number;
+  project_id: number;
+  task_action_id: number;
+  task_name: string;
+  complete_date: string;
+  comment: string;
+  email_alert: string;
+  assigned_to: number;
+  assigned_by: number;
+  assigned_at: string;
+  status: string;
+}
+
+export interface DocumentResponse {
+  id: number;
+  project_id: number;
+  title: string;
+  notes: string;
+  date: string;
+  filename: string;
+}
+
+export interface DBProject {
+  id: string;
+  project_name: string;
+  status: string;
+  user_id: string;
+  address: string;
+  city: string;
+  zip: any;
+  start_date: string;
+  state: string;
+  tasks: TaskResponse[];
+  project_date: ProjectDateResponse[];
+  documents: DocumentResponse[];
+  project_contract: ProjectContractResponse;
+  created_at: string;
 }
