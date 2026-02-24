@@ -14,7 +14,6 @@ import { SESSION_WIZARD_KEY } from "../../utils/constant";
 import DescriptionStep from "../wizard/projects/DescriptionStep";
 import ContractStep from "../wizard/projects/ContractStep";
 import ContactsSelectionStep from "../wizard/projects/ContactsSelectionStep";
-import { useGetProjectContactsQuery } from "../../features/project/ProjectContactApi";
 import DocumentsStep from "../wizard/projects/DocumentsStep";
 import DeadlinesStep from "../wizard/projects/DeadlinesStep";
 import TasksStep from "../wizard/projects/TasksStep";
@@ -44,7 +43,7 @@ const ProjectCreateWizard = () => {
             skip: !resolvedProjectId,
         }
     );
-    const { data: projectContactData, isFetching: isProjectContactDataFetching } = useGetProjectContactsQuery();
+    
 
     const isEditMode = Boolean(resolvedProjectId);
 
@@ -75,12 +74,12 @@ const ProjectCreateWizard = () => {
         });
     }, []);
     //  sessionStorage.removeItem(SESSION_WIZARD_KEY);
+
     const saveAndExit = async () => {
         try {
 
             const formData = new FormData();
 
-            // Append project fields except documents
             Object.entries(projectData).forEach(([key, value]) => {
                 if (key === "documents") return; // skip old empty array
 
@@ -93,7 +92,6 @@ const ProjectCreateWizard = () => {
                 }
             });
 
-            // Append real files
             documentData.forEach((file) => {
                 formData.append("documents[]", file);
             });
@@ -154,16 +152,6 @@ const ProjectCreateWizard = () => {
         }
 
     }, []);
-
-    useEffect(() => {
-        if (!projectContactData?.data) return;
-
-        updateProjectData({
-            projectContacts: projectContactData.data,
-        });
-
-    }, [projectContactData]);
-
 
     useEffect(() => {
         const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -259,7 +247,6 @@ const ProjectCreateWizard = () => {
                         onNext={nextStep}
                         onBack={prevStep}
                         onSaveAndExit={saveAndExit}
-                        isProjectContactDataFetching={isProjectContactDataFetching}
                     />
                 );
             case 7:

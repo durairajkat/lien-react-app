@@ -1,7 +1,7 @@
 import { api } from "../../services/api";
 import { ApiResponse } from "../../types/api";
 import { RemedyDateRequest, RemedyDateType } from "../../types/date";
-import { ProjectListRequest, ProjectStatusCount, ProjectWizardData, WizardDraftResponse } from "../../types/project";
+import { ProjectListRequest, ProjectStatusCount, ProjectViewResponse, ProjectWizardData } from "../../types/project";
 
 export interface SaveWizardStepRequest {
   draft_id?: number;
@@ -32,11 +32,11 @@ export const projectApi = api.injectEndpoints({
 
     /* ---------- GET DRAFT (RESUME) ---------- */
     getProjectInfo: builder.query<
-      ApiResponse<WizardDraftResponse>,
+      ApiResponse<ProjectViewResponse>,
       { projectId: number }
     >({
       query: (params) => ({
-        url: "/projects/info",
+        url: "/project",
         params,
       }),
     }),

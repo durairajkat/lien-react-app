@@ -62,6 +62,15 @@ export const masterDataApi = api.injectEndpoints({
       query: () => "/get-used-states",
       keepUnusedDataFor: 3600,
     }),
+    getAllContactCompanies: builder.query<
+      ApiResponse<any>, {type: string}
+    >({
+      query: ({type}) => ({
+        url: "/fetch-companies",
+        params: { type },
+      }),
+      // keepUnusedDataFor: 3600,
+    }),
   }),
 
   overrideExisting: false,
@@ -76,5 +85,7 @@ export const {
   useLazyGetCustomerTypesQuery,
   useGetContactRolesQuery,
   useGetCustomerTypesQuery,
-  useGetUsedStatesQuery
+  useGetUsedStatesQuery,
+  useGetAllContactCompaniesQuery,
+  useLazyGetAllContactCompaniesQuery
 } = masterDataApi;

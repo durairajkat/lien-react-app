@@ -18,12 +18,12 @@ interface SummaryStepProps {
 }
 
 export default function SummaryStep({ data, onNext, onBack, onEdit, onSaveAndExit, countries, projectTypes, roles, documentData }: SummaryStepProps) {
-    const { data: states, isFetching: isStatesFetching } = useGetStatesQuery(
+    const { data: states } = useGetStatesQuery(
         { country_id: Number(data.countryId) },
         { skip: !data.countryId }
     );
 
-    const { data: customerTypes, isFetching } =
+    const { data: customerTypes } =
         useGetCustomerTypesQuery(
             {
                 state_id: data.stateId,

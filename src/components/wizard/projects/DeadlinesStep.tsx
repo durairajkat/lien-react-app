@@ -17,7 +17,6 @@ export default function DeadlinesStep({ data, onNext, onBack, onSaveAndExit }: D
 
      const [
         calculatedDeadline,
-        { isLoading: calculateLoading },
       ] = useCalculateDeadlineMutation();
 
     const doDeadlineCalculation = async () => {

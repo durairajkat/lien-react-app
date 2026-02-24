@@ -1,10 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
+import Swal from 'sweetalert2';
 import { ArrowRight, ArrowLeft, Plus, User, Check, Building2 } from 'lucide-react';
 import { ProjectWizardData } from '../../../types/project';
 import { Customer } from '../../../types/customer';
 import AddCustomerModal from '../../modals/AddCustomerModal';
 import AddProjectContactsModal from '../../modals/AddProjectContactsModal';
-import { useUploadCustomerExcelMutation } from '../../../features/project/ProjectContactApi';
+import { useGetProjectContactsQuery, useUploadCustomerExcelMutation } from '../../../features/project/ProjectContactApi';
 
 interface ContactsSelectionStepProps {
     readonly data: ProjectWizardData;
@@ -12,18 +13,18 @@ interface ContactsSelectionStepProps {
     readonly onNext: () => void;
     readonly onBack: () => void;
     readonly onSaveAndExit?: () => void;
-    readonly isProjectContactDataFetching: boolean
 }
 
-export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, onSaveAndExit, isProjectContactDataFetching }: ContactsSelectionStepProps) {
-    const [contacts, setContacts] = useState<Customer[]>(data.projectContacts ?? []);
-    const [customers, setCustomers] = useState<Customer[]>(data.customerContacts);
+export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, onSaveAndExit }: ContactsSelectionStepProps) {
+    const [customers, setCustomers] = useState<Customer[]>([]);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showCustomerModal, setShowCustomerModal] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const [uploadCustomerExcel, { isLoading }] =
         useUploadCustomerExcelMutation();
+
+    const { data: projectContactData, isFetching: isProjectContactDataFetching } = useGetProjectContactsQuery();
 
     const handleUploadClick = () => {
         fileInputRef.current?.click();
@@ -39,30 +40,16 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
         formData.append("file", file);
 
         try {
-            const result = await uploadCustomerExcel(formData).unwrap();
-            console.log('  result ', result);
-            setCustomers(result.data);
-            if (result.data) {
-                const customersFromExcel = result.data;
-                const currentCustomers = Array.isArray(data.customerContacts)
-                    ? data.customerContacts
-                    : [];
+            const response = await uploadCustomerExcel(formData).unwrap();
+            setCustomers(response.data);
+            if (response.status) {
 
-                // Merge existing + new
-                const updatedCustomers: Customer[] = [
-                    ...currentCustomers,
-                    ...customersFromExcel,
-                ];
-
-                onUpdate({
-                    customerContacts: updatedCustomers,
-                    selectedCustomerContacts:
-                        updatedCustomers.length === 1
-                            ? updatedCustomers[0]
-                            : data.selectedCustomerContacts,
+                Swal.fire({
+                    icon: "success",
+                    title: "Saved",
+                    text: "Project saved successfully",
                 });
 
-                setCustomers(updatedCustomers);
             }
         } catch (error) {
             console.error("Upload failed:", error);
@@ -72,72 +59,31 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
         e.target.value = "";
     };
 
-    const handleSaveCustomer = async (customer: Customer) => {
-        const currentCustomers = Array.isArray(data.customerContacts)
-            ? data.customerContacts
-            : [];
-        let updatedCustomers: Customer[];
-        updatedCustomers = [...currentCustomers, customer];
-
-        onUpdate({
-            customerContacts: updatedCustomers,
-            selectedCustomerContacts:
-                updatedCustomers.length === 1
-                    ? updatedCustomers[0]
-                    : data.selectedCustomerContacts,
-        });
-
-        setCustomers(updatedCustomers);
-    };
-
     const handleSelectCustomer = useCallback((selectedId: number) => {
-        const selectedCustomer = data.customerContacts.find(x => x.id == selectedId);
         onUpdate({
-            selectedCustomerContacts: selectedCustomer
+            selectedCustomerContacts: selectedId
         });
     }, []);
 
-    const handleSaveProjectContacts = async (customer: Customer) => {
-        const currentCustomers = Array.isArray(data.projectContacts)
-            ? data.projectContacts
-            : [];
-        let updatedCustomers: Customer[];
-        updatedCustomers = [...currentCustomers, { ...customer, is_new: true }];
-
-        onUpdate({
-            projectContacts: updatedCustomers,
-        });
-
-        setContacts(updatedCustomers);
-        setShowAddForm(false);
-    };
-
     const toggleContact = (contactId: number) => {
-        const projectContacts = data.projectContacts ?? [];
-        const selectedContacts = data.selectedProjectContacts ?? [];
+        const selectedContacts: number[] = data.selectedProjectContacts ?? [];
 
-        const selectedContact = projectContacts.find(
-            (contact) => contact.id === contactId
-        );
-
-        if (!selectedContact) return;
-
-        const isAlreadySelected = selectedContacts.some(
-            (contact) => contact.id === contactId
-        );
+        const isAlreadySelected = selectedContacts.includes(contactId);
 
         const updatedContacts = isAlreadySelected
-            ? selectedContacts.filter((contact) => contact.id !== contactId)
-            : [...selectedContacts, selectedContact];
+            ? selectedContacts.filter((id) => id !== contactId)
+            : [...selectedContacts, contactId];
 
         onUpdate({ selectedProjectContacts: updatedContacts });
     };
 
     const isContactSelected = (contactId: number): boolean => {
         return data.selectedProjectContacts?.some(
-            (contact) => contact.id === contactId
+            (contact) => contact === contactId
         ) ?? false;
     }
+
+    console.log('   customer ', customers);
 
     return (
         <div className="max-w-4xl mx-auto p-8 py-12">
@@ -175,7 +121,7 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
                             />
                         </div>
                     </div>
-                    {customers.length === 0 || isLoading ? (
+                    {projectContactData?.customerContact.length === 0 || isLoading ? (
                         <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 mb-4">
                             <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                             {isLoading ? <p className="text-slate-600 font-medium mb-1"> Uploading... </p> :
@@ -186,14 +132,14 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
                         </div>
                     ) : (
                         <select
-                            value={data?.selectedCustomerContacts?.id}
+                            value={data?.selectedCustomerContacts}
                             onChange={(e) => handleSelectCustomer(Number(e.target.value))}
                             className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
                         >
                             <option value="">Select a customer</option>
-                            {customers.map((customer) => (
+                            {projectContactData?.customerContact.map((customer) => (
                                 <option key={customer.id} value={customer.id}>
-                                    {customer.company} ({customer.city})
+                                    {customer.company} ({customer.contacts[0].firstName})
                                 </option>
                             ))}
                         </select>
@@ -226,7 +172,7 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
                         </div>
                     ) : (
                         <>
-                            {contacts.length === 0 ? (
+                            {projectContactData?.projectContact?.length === 0 ? (
                                 <div className="text-center py-12 bg-slate-50 rounded-lg">
                                     <User className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                                     <p className="text-slate-600 mb-2">No contacts found</p>
@@ -234,7 +180,7 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {contacts.map((contact) => (
+                                    {projectContactData?.projectContact.map((contact) => (
                                         <button
                                             key={contact.id}
                                             onClick={() => toggleContact(Number(contact.id))}
@@ -266,7 +212,7 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
                                                         </div>
                                                     </div>
                                                     <div className="ml-9 mt-2 text-sm text-slate-600">
-                                                        {contact?.contacts?.map((con) => (
+                                                        {contact?.contacts?.map((con: any) => (
                                                             <>
                                                                 <div>{con.firstName} {con.lastName}</div>
                                                                 {con.directPhone && <div>{con.directPhone}</div>}
@@ -326,14 +272,12 @@ export default function ContactsSelectionStep({ data, onUpdate, onNext, onBack, 
                 isOpen={showCustomerModal}
                 data={data}
                 onClose={() => setShowCustomerModal(false)}
-                onSave={handleSaveCustomer}
             />
 
             <AddProjectContactsModal
                 isOpen={showAddForm}
                 data={data}
                 onClose={() => setShowAddForm(false)}
-                onSave={handleSaveProjectContacts}
             />
         </div>
     );

@@ -1,21 +1,24 @@
 import { X, Plus } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import Swal from 'sweetalert2';
 import { Customer, CustomerContact, initialCustomer } from '../../types/customer';
-import { useGetContactRolesQuery, useGetStatesQuery } from '../../features/master/masterDataApi';
+import { useGetContactRolesQuery, useGetStatesQuery, useLazyGetAllContactCompaniesQuery } from '../../features/master/masterDataApi';
 import { ProjectWizardData } from '../../types/project';
 import { isValidEmail, isValidPhone } from '../../utils/validation';
 import CustomerContactListForm from '../Parts/CustomerContactListForm';
+import CompanyAutocomplete from '../../utils/CompanyAutocomplete';
+import { useSubmitCustomerContactMutation } from '../../features/project/ProjectContactApi';
 
 interface AddCustomerModalProps {
     readonly isOpen: boolean;
     readonly data: ProjectWizardData;
     readonly onClose: () => void;
-    readonly onSave: (customer: Customer) => void;
     readonly initialData?: Customer;
 }
 
-export default function AddCustomerModal({ isOpen, data, onClose, onSave, initialData }: AddCustomerModalProps) {
+export default function AddCustomerModal({ isOpen, data, onClose, initialData }: AddCustomerModalProps) {
 
+    const hasFetchedRef = useRef(false);
     const [customer, setCustomer] = useState<Customer>(initialData || initialCustomer);
     const [contactErrors, setContactErrors] = useState<
         Record<number, { email?: string; directPhone?: string; cell?: string }>
@@ -30,6 +33,14 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
         type: "customer",
     });
 
+    const [fetchCompanies, { data: companies }] =
+        useLazyGetAllContactCompaniesQuery();
+
+    const [
+        submitCustomerContact,
+        { isLoading: saveLoading },
+    ] = useSubmitCustomerContactMutation();
+
     const updateCustomer = useCallback(
         (field: keyof Customer, value: any) => {
             setCustomer((prev) => ({
@@ -39,6 +50,7 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
         },
         []
     );
+
     const validateForm = (): boolean => {
         const errors: Record<string, string> = {};
         customer.contacts.forEach((contact, index) => {
@@ -82,10 +94,36 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
         setCustomer({ ...customer, contacts: updatedContacts });
     }
 
-    const handleSave = () => {
-        onSave(customer);
-        setCustomer(initialCustomer);
-        onClose();
+    const handleSave = async () => {
+        try {
+            const response = await submitCustomerContact(customer).unwrap();
+            if (response.status) {
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Saved",
+                    text: "Project saved successfully",
+                });
+                setCustomer(initialCustomer);
+                onClose();
+            }
+
+        } catch (err: any) {
+            const errorResponse = err?.data;
+            let errorMessage = "Something went wrong";
+            if (errorResponse?.errors) {
+                const firstErrorKey = Object.keys(errorResponse.errors)[0];
+                errorMessage = errorResponse.errors[firstErrorKey][0];
+            } else if (errorResponse?.message) {
+                errorMessage = errorResponse.message;
+            }
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: errorMessage,
+            });
+        }
     };
 
     const validateContactField = useCallback((
@@ -126,6 +164,13 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
         });
     }, []);
 
+    useEffect(() => {
+        if (isOpen && !hasFetchedRef.current) {
+            fetchCompanies({ type: 'customer' });
+            hasFetchedRef.current = true;
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     return (
@@ -143,17 +188,12 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
 
                 <div className="p-6 space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                Company<span className="text-red-600">*</span>:
-                            </label>
-                            <input
-                                type="text"
-                                value={customer.company}
-                                onChange={(e) => updateCustomer('company', e.target.value)}
-                                className="w-full px-4 py-2.5 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                        </div>
+
+                        <CompanyAutocomplete
+                            companies={companies?.data}
+                            customer={customer}
+                            updateCustomer={updateCustomer}
+                        />
 
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -304,7 +344,7 @@ export default function AddCustomerModal({ isOpen, data, onClose, onSave, initia
                     </button>
                     <button
                         onClick={handleSave}
-                        disabled={!isValid}
+                        disabled={!isValid || saveLoading}
                         className="disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
                     >
                         Save Customer

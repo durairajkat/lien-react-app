@@ -1,21 +1,22 @@
 import { X, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Customer, CustomerContact, initialCustomer } from '../../types/customer';
-import { useGetContactRolesQuery, useGetStatesQuery } from '../../features/master/masterDataApi';
+import { useGetContactRolesQuery, useGetStatesQuery, useLazyGetAllContactCompaniesQuery } from '../../features/master/masterDataApi';
 import { ProjectWizardData } from '../../types/project';
 import { ContactRole } from '../../types/contact';
 import { isValidEmail, isValidPhone } from '../../utils/validation';
+import CompanyAutocomplete from '../../utils/CompanyAutocomplete';
+import { useSubmitProjectContactMutation } from '../../features/project/ProjectContactApi';
+import Swal from 'sweetalert2';
 
 interface AddProjectContactsModalProps {
     readonly isOpen: boolean;
     readonly data: ProjectWizardData;
     readonly onClose: () => void;
-    readonly onSave: (customer: Customer) => void;
     readonly initialData?: Customer;
 }
 
-export default function AddProjectContactsModal({ isOpen, data, onClose, onSave, initialData }: AddProjectContactsModalProps) {
-
+export default function AddProjectContactsModal({ isOpen, data, onClose, initialData }: AddProjectContactsModalProps) {
     const [customer, setCustomer] = useState<Customer>(initialData || initialCustomer);
     const [contactErrors, setContactErrors] = useState<
         Record<number, { email?: string; directPhone?: string; cell?: string }>
@@ -34,11 +35,23 @@ export default function AddProjectContactsModal({ isOpen, data, onClose, onSave,
         type: "project",
     });
 
-    if (!isOpen) return null;
+    const [fetchCompanies, { data: companies }] =
+        useLazyGetAllContactCompaniesQuery();
 
-    const updateCustomer = (field: keyof Customer, value: any) => {
-        setCustomer({ ...customer, [field]: value });
-    };
+    const [
+        submitProjectContact,
+        { isLoading: saveLoading },
+    ] = useSubmitProjectContactMutation();
+
+    const updateCustomer = useCallback(
+        (field: keyof Customer, value: any) => {
+            setCustomer((prev) => ({
+                ...prev,
+                [field]: value,
+            }));
+        },
+        []
+    );
 
     const validateForm = (): boolean => {
         const errors: Record<string, string> = {};
@@ -83,11 +96,39 @@ export default function AddProjectContactsModal({ isOpen, data, onClose, onSave,
         setCustomer({ ...customer, contacts: updatedContacts });
     };
 
-    const handleSave = () => {
-        onSave(customer);
-        setCustomer(initialCustomer);
-        onClose();
-    };
+    const handleSave = async () => {
+            try {
+                const response = await submitProjectContact(customer).unwrap();
+                if (response.status) {
+    
+                    Swal.fire({
+                        icon: "success",
+                        title: "Saved",
+                        text: "Project saved successfully",
+                    });
+                    setCustomer(initialCustomer);
+                    onClose();
+                }
+    
+            } catch (err: any) {
+                const errorResponse = err?.data;
+                let errorMessage = "Something went wrong";
+                if (errorResponse?.errors) {
+                    const firstErrorKey = Object.keys(errorResponse.errors)[0];
+                    errorMessage = errorResponse.errors[firstErrorKey][0];
+                } else if (errorResponse?.message) {
+                    errorMessage = errorResponse.message;
+                }
+    
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: errorMessage,
+                });
+            }
+        };
+
+    console.log(' customer ', customer);
 
     const validateContactField = (
         index: number,
@@ -128,6 +169,15 @@ export default function AddProjectContactsModal({ isOpen, data, onClose, onSave,
         });
     };
 
+    useEffect(() => {
+        if (isOpen) {
+            fetchCompanies({ type: 'customer' });
+        }
+    }, [isOpen]);
+
+    if (!isOpen) return null;
+    console.log(' companies ', companies);
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
@@ -166,17 +216,11 @@ export default function AddProjectContactsModal({ isOpen, data, onClose, onSave,
                                 )}
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                Company<span className="text-red-600">*</span>:
-                            </label>
-                            <input
-                                type="text"
-                                value={customer.company}
-                                onChange={(e) => updateCustomer('company', e.target.value)}
-                                className="w-full px-4 py-2.5 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                        </div>
+                        <CompanyAutocomplete
+                            companies={companies?.data}
+                            customer={customer}
+                            updateCustomer={updateCustomer}
+                        />
 
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -455,7 +499,7 @@ export default function AddProjectContactsModal({ isOpen, data, onClose, onSave,
                     </button>
                     <button
                         onClick={handleSave}
-                        disabled={!isValid}
+                        disabled={!isValid || saveLoading}
                         className="disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
                     >
                         Save Customer

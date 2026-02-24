@@ -4,10 +4,18 @@ import { Customer } from "../../types/customer";
 
 export const ProjectContactApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getProjectContacts: builder.query<ApiResponse<Customer[]>, void>({
+        getProjectContacts: builder.query<
+            {
+                customerContact: any[];
+                projectContact: any[];
+            },
+            void
+        >({
             query: () => "/project-contacts-all",
-            keepUnusedDataFor: 3600,
+            providesTags: ["ProjectContacts"],
+            // keepUnusedDataFor: 3600,
         }),
+
         uploadCustomerExcel: builder.mutation<any, FormData>({
             query: (formData) => ({
                 url: "/upload-customer-contact-excel",
@@ -15,11 +23,36 @@ export const ProjectContactApi = api.injectEndpoints({
                 body: formData,
             }),
         }),
+        submitCustomerContact: builder.mutation<
+              ApiResponse<any>,
+              Customer
+            >({
+              query: (body) => ({
+                url: "/save-customer-contact",
+                method: "POST",
+                body,
+              }),
+              invalidatesTags: ["ProjectContacts"],
+            }),
+
+            submitProjectContact: builder.mutation<
+              ApiResponse<any>,
+              Customer
+            >({
+              query: (body) => ({
+                url: "/save-project-contact",
+                method: "POST",
+                body,
+              }),
+              invalidatesTags: ["ProjectContacts"],
+            }),
     }),
     overrideExisting: false,
 });
 
 export const {
     useGetProjectContactsQuery,
-    useUploadCustomerExcelMutation
+    useUploadCustomerExcelMutation,
+    useSubmitCustomerContactMutation,
+    useSubmitProjectContactMutation
 } = ProjectContactApi;

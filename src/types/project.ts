@@ -1,6 +1,6 @@
-import { Customer, initialCustomer } from "./customer";
 import { ProjectDateResponse } from "./date";
 import { ProjectContractResponse } from "./deadline";
+import { CommonData, ProjectRole, ProjectType } from "./master";
 
 export interface Task {
   id: string;
@@ -49,10 +49,10 @@ export interface ProjectWizardData {
   unpaidBalance: string;
   jobProjectNumber: string;
   materialServicesDescription: string;
-  customerContacts: Customer[];
-  selectedCustomerContacts: Customer;
-  selectedProjectContacts: Customer[];
-  projectContacts: Customer[];
+
+  selectedCustomerContacts: number;
+
+  selectedProjectContacts: number[];
 
   documents: File[];
 
@@ -95,10 +95,8 @@ export const initialProjectWizardData: ProjectWizardData = {
   unpaidBalance: '',
   jobProjectNumber: '',
   materialServicesDescription: '',
-  customerContacts: [],
-  selectedCustomerContacts: initialCustomer,
+  selectedCustomerContacts: 0,
   selectedProjectContacts: [],
-  projectContacts: [],
 
   documents: [],
 
@@ -174,4 +172,67 @@ export interface DBProject {
   documents: DocumentResponse[];
   project_contract: ProjectContractResponse;
   created_at: string;
+}
+
+export interface ProjectViewResponse {
+  id: number;
+  jobAddress: string;
+  jobCity: string;
+  jobCountyId: number;
+  jobName: string;
+  jobZip: number;
+  projectName: number;
+  projectTypeId: number;
+  roleId: number;
+  signature?: string;
+  signatureDate?: string;
+  startDate: number;
+  stateId: number;
+  status: number;
+  user_id: number;
+  endDate: number;
+  customerTypeId: number;
+  created_at: number;
+  countryId: number;
+  contracts: {
+    id: number;
+    additionalCosts: string;
+    baseContractAmount: string;
+    jobProjectNumber: number;
+    paymentsCredits: string;
+    total_claim_amount: string;
+    waiver: string;
+  };
+  documents: DocumentViewResponse[];
+  tasks: TaskViewResponse[];
+  projectType: ProjectType;
+  projectRole: ProjectRole;
+  customerType: string;
+  jobCounty: CommonData;
+  country: string;
+  state: string;
+}
+
+export interface DocumentViewResponse {
+  id: number;
+  notes?: string;
+  filename: string;
+  date: string;
+  title: string;
+  project_id?: number;
+}
+
+export interface TaskViewResponse {
+  actionType: string;
+  assigned_at: string;
+  assigned_by: number;
+  assigned_to: number;
+  comment: string;
+  complete_date: string;
+  due_date: string;
+  email_alert: string;
+  id: number
+  status: string;
+  task_action_id: number;
+  task_name: string;
 }

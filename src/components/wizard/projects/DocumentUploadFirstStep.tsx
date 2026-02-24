@@ -73,10 +73,10 @@ export default function DocumentUploadFirstStep({ data, onUpdate, onNext, onSkip
         jobName: mockExtractedData.jobName,
         jobAddress: mockExtractedData.jobAddress,
         jobCity: mockExtractedData.jobCity,
-        jobState: mockExtractedData.jobState,
+        jobStateId: mockExtractedData.jobState ? parseInt(mockExtractedData.jobState, 10) : 0,
         jobZip: mockExtractedData.jobZip,
         contractAmount: mockExtractedData.contractAmount,
-        customerType: mockExtractedData.customerType,
+        // customerType: mockExtractedData.customerType,
         startDate: mockExtractedData.startDate
       });
     } catch (err) {

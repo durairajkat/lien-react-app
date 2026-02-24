@@ -13,6 +13,7 @@ export interface Customer {
   role_id?: number;
   user_id?: string;
   company: string;
+  companyId?: number;
   website: string;
   address: string;
   city: string;

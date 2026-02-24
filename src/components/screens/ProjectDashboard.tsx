@@ -76,8 +76,9 @@ export default function ProjectDashboard() {
         {
             field: "action", headerName: " Action", flex: 1, sortable: false,
             renderCell: (params) => {
+                const row = params.row;
                 return (
-                    <ActionColumn /> 
+                    <ActionColumn data={row} /> 
                 );
             }
         }

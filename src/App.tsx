@@ -10,6 +10,7 @@ import OnboardingScreen from "./components/screens/OnboardingScreen";
 import { Template } from "./components/layout/member/Template";
 import QuickRemediesScreen from "./components/screens/QuickRemediesScreen";
 import RecentProjectsScreen from "./components/screens/RecentProjectsScreen";
+import ProjectViewScreen from "./components/screens/ProjectViewScreen";
 
 function App() {
   return (
@@ -38,6 +39,11 @@ function App() {
         />
         <Route path="/projects" element={
           <ProtectedRoute><Template content={<RecentProjectsScreen />} /></ProtectedRoute>
+        } />
+        <Route path="/project/:projectId" element={
+          <ProtectedRoute>
+            <Template content={<ProjectViewScreen />} />
+          </ProtectedRoute>
         } />
         <Route path="/quick-remedies" element={
           <ProtectedRoute><Template content={<QuickRemediesScreen />} /></ProtectedRoute>
