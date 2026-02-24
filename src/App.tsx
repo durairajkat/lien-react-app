@@ -12,6 +12,7 @@ import QuickRemediesScreen from "./components/screens/QuickRemediesScreen";
 import RecentProjectsScreen from "./components/screens/RecentProjectsScreen";
 import ProjectViewScreen from "./components/screens/ProjectViewScreen";
 import ProjectTasks from "./components/screens/ProjectTasks";
+import RecentContactsScreen from "./components/screens/RecentContactsScreen";
 
 function App() {
   return (
@@ -48,6 +49,10 @@ function App() {
         } />
         <Route path="/tasks" element={
           <ProtectedRoute><Template content={<ProjectTasks />} /></ProtectedRoute>
+        }
+        />
+        <Route path="/contacts" element={
+          <ProtectedRoute><Template content={<RecentContactsScreen />} /></ProtectedRoute>
         }
         />
         <Route path="/quick-remedies" element={

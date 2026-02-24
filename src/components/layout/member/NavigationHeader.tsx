@@ -2,7 +2,7 @@ import { Plus, Home, ArrowLeft, LogOut, FileText, Users, CheckSquare, Save } fro
 import { useAppDispatch } from '../../../store/hooks';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../../features/auth/authSlice';
-import { handleAddProject } from '../../../utils/navigation';
+import { handleAddProject, handleViewTasks } from '../../../utils/navigation';
 
 interface NavigationHeaderProps {
     readonly onBack?: () => void;
@@ -96,7 +96,7 @@ export default function NavigationHeader({
                                     <span className="hidden sm:inline">Documents</span>
                                 </button>
                                 <button
-                                    // onClick={onViewTasks}
+                                    onClick={() => handleViewTasks(navigate)}
                                     className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                                 >
                                     <CheckSquare className="w-4 h-4" />

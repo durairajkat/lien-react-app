@@ -7,3 +7,7 @@ export const handleAddProject = (navigate: NavigateFunction) => {
 export const handleViewProject = (navigate: NavigateFunction, projectId: string) => {
   navigate(`/project/${projectId}`);
 };
+
+export const handleViewTasks = (navigate: NavigateFunction) => {
+  navigate("/tasks");
+}

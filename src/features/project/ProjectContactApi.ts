@@ -2,6 +2,32 @@ import { api } from "../../services/api";
 import { ApiResponse } from "../../types/api";
 import { Customer } from "../../types/customer";
 
+export interface ProjectContact {
+    id: number;
+    company: string;
+    email: string;
+    website: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    state_id?: number;
+    fax?: string;
+    companyId?: number;
+    created_at: string;
+    updated_at?: string;
+    contacts: {
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+        directPhone: string;
+        cell: string;
+        role_id? : number;
+        role?: string;
+    }[];
+}
+
 export const ProjectContactApi = api.injectEndpoints({
     endpoints: (builder) => ({
         getProjectContacts: builder.query<
