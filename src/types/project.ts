@@ -132,6 +132,7 @@ export interface ProjectListRequest {
   sort_dir?: "asc" | "desc";
   status?: string;
   state_id?: string;
+  action_id?: string;   // it is used in taks filter
 }
 
 export interface TaskResponse {
