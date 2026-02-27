@@ -23,6 +23,7 @@ const ActionColumn = ({data}: ActionColumnProps) => {
                 size="small"
                 className="text-slate-600 hover:bg-slate-100"
                 title="Edit"
+                onClick={() => navigate(`/project/create/${data.id}`)}
             >
                 <Edit className="w-4 h-4" />
             </IconButton>

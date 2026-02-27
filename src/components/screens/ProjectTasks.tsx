@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DataGrid, GridColDef, GridSortModel } from '@mui/x-data-grid';
+import { useLocation } from 'react-router-dom';
 import { Eye } from 'lucide-react';
 import TotalCountCards from '../Parts/Task/TotalCountCards';
 import { useGetTasksQuery } from '../../features/task/taskDataApi';
@@ -8,10 +9,11 @@ import { DBTask } from '../../types/tasks';
 import TaskView from '../Parts/Task/TaskView';
 
 export default function ProjectTasks() {
+    const location = useLocation();
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [sortModel, setSortModel] = useState<GridSortModel>([]);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(location.state?.project_name || "");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [actionFilter, setActionFilter] = useState("all");
     const [selectedTask, setSelectedTask] = useState<number | null>(null);

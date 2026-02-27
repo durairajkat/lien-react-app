@@ -43,7 +43,6 @@ const ProjectCreateWizard = () => {
             skip: !resolvedProjectId,
         }
     );
-    
 
     const isEditMode = Boolean(resolvedProjectId);
 

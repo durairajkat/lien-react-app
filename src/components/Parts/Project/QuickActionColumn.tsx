@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import { IconButton } from "@mui/material"
 import { Calendar, ClipboardList, FileText } from "lucide-react"
 import { DBProject } from "../../../types/project"
@@ -7,6 +8,7 @@ interface QuickActionColumnProps {
 }
 
 const QuickActionColumn = ({ data }: QuickActionColumnProps) => {
+    const navigate = useNavigate();
     return (
         <div className="text-center">
             {data.project_date.length > 0 &&
@@ -23,6 +25,7 @@ const QuickActionColumn = ({ data }: QuickActionColumnProps) => {
                     size="small"
                     className="text-slate-600 hover:text-blue-600 hover:bg-blue-50"
                     title="Tasks"
+                    onClick={() => navigate('/tasks', { state: { project_name: data.project_name } })}
                 >
                     <ClipboardList className="w-4 h-4" />
                 </IconButton>
@@ -32,6 +35,7 @@ const QuickActionColumn = ({ data }: QuickActionColumnProps) => {
                     size="small"
                     className="text-slate-600 hover:text-blue-600 hover:bg-blue-50"
                     title="Documents"
+                    onClick={() => navigate('/documents', { state: { project_id: data.id } })}
                 >
                     <FileText className="w-4 h-4" />
                 </IconButton>

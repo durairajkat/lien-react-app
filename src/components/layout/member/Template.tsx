@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import NavigationHeader from './NavigationHeader'
 import SideNavigation from './SideNavigation'
 
@@ -9,9 +10,12 @@ interface TemplateProps {
 }
 
 export const Template = (props: TemplateProps) => {
+
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     return (
         <div className="flex h-screen">
-            <SideNavigation />
+            <SideNavigation isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
             <div className="flex-1 overflow-auto">
                 <div className="min-h-screen bg-slate-50">
                     <NavigationHeader
@@ -21,6 +25,7 @@ export const Template = (props: TemplateProps) => {
                         wizardMode={props.wizardMode ?? false}
                         saveAndExit={props.saveAndExit}
                         saveAndExitDisabled={props.saveAndExitDisabled ?? false}
+                        onMenuClick={() => setIsMobileMenuOpen(true)}
                     />
                     {/* Main content goes here */}
                     {props.content}
