@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Info, Globe } from 'lucide-react';
 import { ProjectWizardData } from '../../../types/project';
 import { ProjectRole, ProjectType, State } from '../../../types/master';
@@ -24,6 +24,12 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
     { skip: !data.countryId }
   );
 
+  const prevRef = useRef({
+    stateId: data.stateId,
+    projectTypeId: data.projectTypeId,
+    roleId: data.roleId,
+  });
+
   const [
     fetchCustomerTypes,
     { data: customerTypesRes, isFetching: isCustomerLoading },
@@ -39,23 +45,41 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
   const canSelectRole = Boolean(data.stateId && data.projectTypeId);
 
   useEffect(() => {
+
     if (
       data.stateId &&
       data.projectTypeId &&
       data.roleId
     ) {
-      // reset selected customer before refetch
-      const stateName = states?.data?.find(x => x.id === data.stateId);
-      onUpdate({ customerTypeId: undefined, state: stateName?.name ?? '' });
 
+      const changed =
+        prevRef.current.stateId !== data.stateId ||
+        prevRef.current.projectTypeId !== data.projectTypeId ||
+        prevRef.current.roleId !== data.roleId;
+
+      const stateName = states?.data?.find(x => x.id === data.stateId);
+
+      if (changed) {
+        onUpdate({
+          customerTypeId: undefined,
+          state: stateName?.name ?? ''
+        });
+      }
 
       fetchCustomerTypes({
         state_id: data.stateId,
         project_type_id: data.projectTypeId,
         role_id: data.roleId,
       });
+
+      prevRef.current = {
+        stateId: data.stateId,
+        projectTypeId: data.projectTypeId,
+        roleId: data.roleId,
+      };
+
     }
-    
+
   }, [
     data.stateId,
     data.projectTypeId,
@@ -236,7 +260,7 @@ export default function DetailsStep({ data, onUpdate, onNext, onBack, countries,
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
-        <BackBtn onBack={onBack}/>       
+        <BackBtn onBack={onBack} />
         <ContinueBtn onNext={onNext} disabled={!isValid} />
       </div>
     </div>

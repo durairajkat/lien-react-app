@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Menu, X} from 'lucide-react';
+import { ChevronLeft, ChevronRight, X} from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { menuSections } from '../../../utils/menu';
@@ -45,15 +45,6 @@ export default function SideNavigation({ isMobileMenuOpen, setIsMobileMenuOpen }
 
   return (
     <>
-      {/* {isMobile && (
-        <button
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="fixed top-4 left-4 z-50 bg-blue-900 text-white p-3 rounded-lg shadow-lg hover:bg-blue-800 transition-colors md:hidden"
-          aria-label="Open menu"
-        >
-          <Menu className="w-6 h-6" />
-        </button>
-      )} */}
 
       {isMobile && isMobileMenuOpen && (
         <div

@@ -39,6 +39,9 @@ export const projectApi = api.injectEndpoints({
         url: "/project",
         params,
       }),
+      providesTags: (_result, _error, arg) => [
+        { type: "Project", id: arg.projectId }
+      ],
     }),
 
     /* ---------- FINAL SUBMIT ---------- */
@@ -51,7 +54,20 @@ export const projectApi = api.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Projects", "ProjectStatus"],
+      invalidatesTags: (_result, _error, body) => {
+
+        const projectId = body.get("projectId");
+
+        return [
+          "Projects",
+          "ProjectStatus",
+
+          // invalidate specific project cache
+          projectId
+            ? { type: "Project", id: Number(projectId) }
+            : "Project"
+        ];
+      },
     }),
 
     /* ---------- DELETE DRAFT AFTER SUBMIT ---------- */

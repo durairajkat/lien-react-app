@@ -137,7 +137,7 @@ export default function InfoSheetStep({ data, onUpdate, onBack, onComplete, coun
                     ) : (
                         <>
                             <CheckCircle className="w-5 h-5" />
-                            Create Project
+                            {data?.projectId ? 'Update Project' : 'Create Project'}
                         </>
                     )}
                 </button>

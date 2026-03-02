@@ -179,6 +179,52 @@ const ProjectCreateWizard = () => {
         };
     }, []);
 
+
+    useEffect(() => {
+        if (isEditMode && data?.data) {
+            const project = data.data;
+
+            setProjectData({
+                ...initialProjectWizardData,
+                projectId: project.id,
+                projectName: String(project.projectName ?? ""),
+                countryId: project.countryId ?? "",
+                country: project.country ?? "",
+                state: project.state ?? "",
+                stateId: project.stateId ?? "",
+                projectTypeId: project.projectTypeId ?? 0,
+                roleId: project.roleId ?? 0,
+                customerTypeId: project.customerTypeId ?? 0,
+
+                startDate: String(project.startDate ?? ""),
+                endDate: String(project.endDate ?? ""),
+                jobName: project.jobName ?? '',
+                jobAddress: project.jobAddress ?? '',
+                jobCity: project.jobCity ?? '',
+                jobStateId: project.stateId ?? 0,
+                jobZip: String(project.jobZip ?? 0),
+                jobCountryId: project.countryId ?? 0,
+                jobCountyId: project.jobCountyId ?? 0,
+
+                furnishingDates: project.dates ?? [],
+
+                baseContractAmount: String(project.contracts?.baseContractAmount ?? ""),
+                additionalCosts: String(project.contracts?.additionalCosts ?? ""),
+                paymentsCredits: String(project.contracts?.paymentsCredits ?? ""),
+                jobProjectNumber: String(project.contracts?.jobProjectNumber ?? ''),
+                materialServicesDescription: String(project.contracts?.materialServicesDescription ?? ''),
+
+                selectedCustomerContacts: project.selectedCustomerContacts ?? 0,
+                selectedProjectContacts: project.selectedProjectContacts ?? [],
+                uploaded_documents: project.uploaded_documents ?? [],
+
+                signatureDate: String(project.signatureDate ?? ""),
+                customerSignature: String(project.signature ?? ""),
+                // map all fields properly
+            });
+        }
+    }, [isEditMode, data]);
+
     console.log('Project Data:', projectData);
     console.log(' documentData ', documentData);
 
@@ -252,10 +298,12 @@ const ProjectCreateWizard = () => {
                 return (
                     <DocumentsStep
                         data={documentData}
+                        uploadedDocuments={projectData.uploaded_documents || []}
                         onUpdate={setDocumentData}
                         onNext={nextStep}
                         onBack={prevStep}
                         onSaveAndExit={saveAndExit}
+                        updateProjectData={updateProjectData}
                     />
                 );
             case 8:

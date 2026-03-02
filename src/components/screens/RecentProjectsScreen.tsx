@@ -36,20 +36,20 @@ const RecentProjectsScreen = () => {
     const overall_total = data?.overall_total;
 
     const columns: GridColDef<DBProject>[] = [
-        { field: "project_name", headerName: "Project", flex: 1 },
-        { field: "city", headerName: "Customer", flex: 1, sortable: false },
-        { field: "zip", headerName: "Contact", flex: 1, sortable: false },
+        { field: "project_name", headerName: "Project", flex: 1, minWidth: 180, },
+        { field: "city", headerName: "Customer", flex: 1, sortable: false, minWidth: 120, },
+        { field: "zip", headerName: "Contact", flex: 1, sortable: false, minWidth: 140, },
         {
-            field: "base_amount", headerName: "Contract", flex: 1,
+            field: "base_amount", headerName: "Contract", flex: 1, minWidth: 100,
             valueGetter: (_value, row) =>
                 row.project_contract?.base_amount ?? "",
 
         },
         {
-            field: "state", headerName: "State", flex: 1
+            field: "state", headerName: "State", flex: 1, minWidth: 120,
         },
         {
-            field: "status", headerName: "Status", flex: 1,
+            field: "status", headerName: "Status", flex: 1, minWidth: 80,
             valueGetter: (_value, row) => {
                 const value = row.status;
                 return value === '1' ? 'Active' : 'Pending';
@@ -59,6 +59,7 @@ const RecentProjectsScreen = () => {
             field: "created_at",
             headerName: "Created",
             flex: 1,
+            minWidth: 100,
             valueGetter: (_value, row) => {
                 const value = row.created_at;
                 if (!value) return "";
@@ -66,7 +67,7 @@ const RecentProjectsScreen = () => {
             },
         },
         {
-            field: "quick_action", headerName: "Quick Actions", flex: 1, sortable: false,
+            field: "quick_action", headerName: "Quick Actions", minWidth: 140, flex: 0, sortable: false,
             renderCell: (params) => {
                 const row = params.row;
                 return (
@@ -75,7 +76,7 @@ const RecentProjectsScreen = () => {
             }
         },
         {
-            field: "action", headerName: " Action", flex: 1, sortable: false,
+            field: "action", headerName: " Action", flex: 0, minWidth: 140, sortable: false,
             renderCell: (params) => {
                 const row = params.row;
                 return (

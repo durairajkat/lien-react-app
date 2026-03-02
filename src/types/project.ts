@@ -55,6 +55,7 @@ export interface ProjectWizardData {
   selectedProjectContacts: number[];
 
   documents: File[];
+  uploaded_documents?: DocumentViewResponse[];
 
   tasks: Task[];
   removedTasks: string[];
@@ -99,6 +100,7 @@ export const initialProjectWizardData: ProjectWizardData = {
   selectedProjectContacts: [],
 
   documents: [],
+  uploaded_documents: [],
 
   tasks: [],
   removedTasks: [],
@@ -132,7 +134,8 @@ export interface ProjectListRequest {
   sort_dir?: "asc" | "desc";
   status?: string;
   state_id?: string;
-  action_id?: string;   // it is used in taks filter
+  action_id?: string;
+  project_id?: number
 }
 
 export interface TaskResponse {
@@ -203,8 +206,10 @@ export interface ProjectViewResponse {
     paymentsCredits: string;
     total_claim_amount: string;
     waiver: string;
+    materialServicesDescription: string;
   };
-  documents: DocumentViewResponse[];
+  documents?: DocumentViewResponse[];
+  uploaded_documents?: DocumentViewResponse[];
   tasks: TaskViewResponse[];
   projectType: ProjectType;
   projectRole: ProjectRole;
@@ -212,6 +217,9 @@ export interface ProjectViewResponse {
   jobCounty: CommonData;
   country: string;
   state: string;
+  dates: string[];
+  selectedCustomerContacts: number;
+  selectedProjectContacts: number[];
 }
 
 export interface DocumentViewResponse {
@@ -221,6 +229,11 @@ export interface DocumentViewResponse {
   date: string;
   title: string;
   project_id?: number;
+  file_url: string;
+  file_name: string;
+  file_size: string;
+  file_size_bytes: string;
+  file_extension: string;
 }
 
 export interface TaskViewResponse {

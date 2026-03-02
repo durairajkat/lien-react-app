@@ -38,12 +38,12 @@ export default function ProjectTasks() {
     };
 
     const columns: GridColDef<DBTask>[] = [
-        { field: "project_name", headerName: "Project", flex: 1 },
-        { field: "task_name", headerName: "Task Name", flex: 1, sortable: false },
-        { field: "task_action_name", headerName: "Task Action", flex: 1, sortable: false },
-        { field: "due_date", headerName: "Due Date", flex: 1, sortable: false },
+        { field: "project_name", headerName: "Project", flex: 1, minWidth: 180, },
+        { field: "task_name", headerName: "Task Name", flex: 1, sortable: false, minWidth: 180, },
+        { field: "task_action_name", headerName: "Task Action", flex: 1, sortable: false, minWidth: 180, },
+        { field: "due_date", headerName: "Due Date", flex: 1, sortable: false, minWidth: 180, },
         {
-            field: "due_status", headerName: "Days until due", flex: 1,
+            field: "due_status", headerName: "Days until due", flex: 1, minWidth: 180,
             renderCell: (params) => {
                 const days = params.row.days_difference;
                 return (
@@ -54,17 +54,17 @@ export default function ProjectTasks() {
             }
         },
         {
-            field: "assigned_to", headerName: "Assigned To", flex: 1,
+            field: "assigned_to", headerName: "Assigned To", flex: 1, minWidth: 180,
             valueGetter: (_value, row) => row.assigned_to_user?.name || "Unassigned"
         },
         {
-            field: "assigned_at", headerName: "Assigned At", flex: 1
+            field: "assigned_at", headerName: "Assigned At", flex: 1, minWidth: 180,
         },
         {
-            field: "status", headerName: "Status", flex: 1
+            field: "status", headerName: "Status", flex: 1, minWidth: 180,
         },
         {
-            field: "action", headerName: " Action", flex: 1, sortable: false,
+            field: "action", headerName: " Action", flex: 0, minWidth: 100, sortable: false,
             renderCell: (params) => {
                 const row = params.row;
                 return (

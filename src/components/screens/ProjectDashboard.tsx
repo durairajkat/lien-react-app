@@ -35,20 +35,20 @@ export default function ProjectDashboard() {
     const overall_total = data?.overall_total;
 
     const columns: GridColDef<DBProject>[] = [
-        { field: "project_name", headerName: "Project", flex: 1 },
-        { field: "city", headerName: "Customer", flex: 1, sortable: false },
-        { field: "zip", headerName: "Contact", flex: 1, sortable: false },
+        { field: "project_name", headerName: "Project", flex: 1, minWidth: 180, },
+        { field: "city", headerName: "Customer", flex: 1, sortable: false, minWidth: 180, },
+        { field: "zip", headerName: "Contact", flex: 1, sortable: false, minWidth: 180, },
         {
-            field: "base_amount", headerName: "Contract", flex: 1,
+            field: "base_amount", headerName: "Contract", flex: 1, minWidth: 180,
             valueGetter: (_value, row) =>
                 row.project_contract?.base_amount ?? "",
 
         },
         {
-            field: "state", headerName: "State", flex: 1
+            field: "state", headerName: "State", flex: 1, minWidth: 180,
         },
         {
-            field: "status", headerName: "Status", flex: 1,
+            field: "status", headerName: "Status", flex: 1, minWidth: 180,
             valueGetter: (_value, row) => {
                 const value = row.status;
                 return value === '1' ? 'Active' : 'Pending';
@@ -58,6 +58,7 @@ export default function ProjectDashboard() {
             field: "created_at",
             headerName: "Created",
             flex: 1,
+            minWidth: 180,
             valueGetter: (_value, row) => {
                 const value = row.created_at;
                 if (!value) return "";
@@ -65,7 +66,7 @@ export default function ProjectDashboard() {
             },
         },
         {
-            field: "quick_action", headerName: "Quick Actions", flex: 1, sortable: false,
+            field: "quick_action", headerName: "Quick Actions", flex: 0, minWidth: 120, sortable: false,
             renderCell: (params) => {
                 const row = params.row;
                 return (
@@ -74,11 +75,11 @@ export default function ProjectDashboard() {
             }
         },
         {
-            field: "action", headerName: " Action", flex: 1, sortable: false,
+            field: "action", headerName: " Action", flex: 0, minWidth: 120, sortable: false,
             renderCell: (params) => {
                 const row = params.row;
                 return (
-                    <ActionColumn data={row} /> 
+                    <ActionColumn data={row} />
                 );
             }
         }

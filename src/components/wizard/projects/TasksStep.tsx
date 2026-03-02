@@ -1,10 +1,11 @@
 import { Plus, Trash2, Mail } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Swal from 'sweetalert2';
 import { ProjectWizardData, Task } from '../../../types/project';
 import BackBtn from '../../Button/BackBtn';
 import ContinueBtn from '../../Button/ContinueBtn';
 import SaveAndExitBtn from '../../Button/SaveAndExitBtn';
-import { useGetTaskActionsQuery } from '../../../features/task/taskDataApi';
+import { useGetTaskActionsQuery, useGetTasksQuery } from '../../../features/task/taskDataApi';
 import { useGetSubUsersQuery } from '../../../features/master/subUserDataApi';
 import AddSubUserModal from '../../modals/AddSubUserModal';
 
@@ -17,6 +18,7 @@ interface TasksStepProps {
 }
 
 export default function TasksStep({ data, onUpdate, onNext, onBack, onSaveAndExit }: TasksStepProps) {
+    const initializedRef = useRef(false);
 
     const [isOpen, setIsOpen] = useState(false);
     const { data: actionRes } = useGetTaskActionsQuery();
@@ -31,6 +33,14 @@ export default function TasksStep({ data, onUpdate, onNext, onBack, onSaveAndExi
         dueDate: '',
         emailAlert: false,
         comment: '',
+    });
+
+    const { data: taskData } = useGetTasksQuery({
+        page: 1,
+        per_page: 100,
+        sort_by: "created_at",
+        sort_dir: "desc",
+        project_id: data?.projectId,
     });
 
     const isAddDisabled = useMemo(() => {
@@ -77,9 +87,53 @@ export default function TasksStep({ data, onUpdate, onNext, onBack, onSaveAndExi
         });
     };
 
-    const removeTask = (taskId: string) => {
-        onUpdate({ tasks: data.tasks.filter(t => t.id !== taskId), removedTasks: [...data.removedTasks, taskId] });
+    const removeTask = async (taskId: string) => {
+
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: `Do you want to delete task?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+            cancelButtonText: "Cancel",
+            buttonsStyling: false,
+            customClass: {
+                confirmButton:
+                    "bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 mx-2",
+
+                cancelButton:
+                    "bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 mx-2",
+            },
+        });
+
+        if (result.isConfirmed) {
+            onUpdate({ tasks: data.tasks.filter(t => t.id !== taskId), removedTasks: [...data.removedTasks, taskId] });
+        }
     };
+
+    useEffect(() => {
+
+        if (taskData?.data?.data && data?.projectId && !initializedRef.current) {
+
+            const mappedTasks: Task[] = taskData.data?.data?.map((task: any) => ({
+                id: task.id.toString(),
+                actionId: task.task_action_id,
+                action: task.task_name,
+                assignedId: task.assigned_to,
+                assignedTo: task?.assigned_to_user?.name,
+                dueDate: task.due_date,
+                emailAlert: task.email_alert === "1",
+                comment: task.comment,
+                otherName: "",
+                isNew: false,
+            }));
+
+            onUpdate({ tasks: mappedTasks });
+
+            initializedRef.current = true;
+        }
+
+    }, [taskData, data?.projectId]);
 
     return (
         <div className="max-w-6xl mx-auto p-8 py-12">
@@ -160,18 +214,18 @@ export default function TasksStep({ data, onUpdate, onNext, onBack, onSaveAndExi
                             <select
                                 value={newTask.assignedId}
                                 onChange={(e) => {
-                                        const assignedId = Number(e.target.value);
+                                    const assignedId = Number(e.target.value);
 
-                                        const selectedAction = subUserRes?.data?.find(
-                                            (a) => a.id === assignedId
-                                        );
+                                    const selectedAction = subUserRes?.data?.find(
+                                        (a) => a.id === assignedId
+                                    );
 
-                                        setNewTask({
-                                            ...newTask,
-                                            assignedId: assignedId,
-                                            assignedTo: selectedAction?.name || ''
-                                        });
-                                    }}
+                                    setNewTask({
+                                        ...newTask,
+                                        assignedId: assignedId,
+                                        assignedTo: selectedAction?.name || ''
+                                    });
+                                }}
                                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 disabled={!data.countryId}
                             >
