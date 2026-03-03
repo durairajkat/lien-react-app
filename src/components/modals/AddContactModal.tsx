@@ -1,32 +1,23 @@
-import { X, Plus } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import Swal from 'sweetalert2';
-import { Customer, CustomerContact, initialCustomer } from '../../types/customer';
-import { useGetContactRolesQuery, useGetStatesQuery, useLazyGetAllContactCompaniesQuery } from '../../features/master/masterDataApi';
-import { ProjectWizardData } from '../../types/project';
-import { isValidEmail, isValidPhone } from '../../utils/validation';
-import CustomerContactListForm from '../Parts/CustomerContactListForm';
-import CompanyAutocomplete from '../../utils/CompanyAutocomplete';
-import { useSubmitCustomerContactMutation } from '../../features/project/ProjectContactApi';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Customer, CustomerContact, initialCustomer } from "../../types/customer";
+import { useGetContactRolesQuery, useGetStatesQuery, useLazyGetAllContactCompaniesQuery } from "../../features/master/masterDataApi";
+import { useSubmitCustomerContactMutation } from "../../features/project/ProjectContactApi";
+import { isValidEmail, isValidPhone } from "../../utils/validation";
+import Swal from "sweetalert2";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton } from "@mui/material";
+import { Plus } from "lucide-react";
+import CustomerContactListForm from "../Parts/CustomerContactListForm";
+import CompanyAutocomplete from "../../utils/CompanyAutocomplete";
 
-interface AddCustomerModalProps {
-    readonly isOpen: boolean;
-    readonly data: ProjectWizardData;
-    readonly onClose: () => void;
-    readonly initialData?: Customer;
-}
-
-export default function AddCustomerModal({ isOpen, data, onClose, initialData }: AddCustomerModalProps) {
-
+const AddContactModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
     const hasFetchedRef = useRef(false);
-    const [customer, setCustomer] = useState<Customer>(initialData || initialCustomer);
+    const [customer, setCustomer] = useState<Customer>(initialCustomer);
     const [contactErrors, setContactErrors] = useState<
         Record<number, { email?: string; directPhone?: string; cell?: string }>
     >({});
 
     const { data: states, isLoading: isStatesLoading, isFetching: isStatesFetching } = useGetStatesQuery(
-        { country_id: Number(data.countryId) },
-        { skip: !data.countryId }
+        { country_id: 1 },
     );
 
     const { data: customerContactRoles } = useGetContactRolesQuery({
@@ -171,26 +162,36 @@ export default function AddCustomerModal({ isOpen, data, onClose, initialData }:
         }
     }, [isOpen]);
 
-    if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-slate-900">Customer Contact</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-slate-400 hover:text-slate-600 transition-colors"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
+        <Dialog
+            open={isOpen}
+            onClose={onClose}
+            maxWidth="md"
+            fullWidth
+        >
+            <DialogTitle>
+                Add Customer Contact
+                <IconButton onClick={onClose}
+                    sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: 8
+                    }}
+                >
+                    X
+                </IconButton>
 
+            </DialogTitle>
+
+
+            {/* Content */}
+            <DialogContent>
                 <div className="p-6 space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
 
                         <CompanyAutocomplete
-                            companies={companies?.data}
+                            companies={companies?.data || []}
                             customer={customer}
                             updateCustomer={updateCustomer}
                         />
@@ -211,7 +212,7 @@ export default function AddCustomerModal({ isOpen, data, onClose, initialData }:
 
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Address<span className="text-red-600">*</span>:
+                            Address <span className="text-red-600">*</span>:
                         </label>
                         <textarea
                             value={customer.address}
@@ -281,7 +282,7 @@ export default function AddCustomerModal({ isOpen, data, onClose, initialData }:
                     <div className="grid md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                Phone<span className="text-red-600">*</span>:
+                                Phone <span className="text-red-600">*</span>:
                             </label>
                             <input
                                 type="text"
@@ -334,23 +335,19 @@ export default function AddCustomerModal({ isOpen, data, onClose, initialData }:
                         />
                     </div>
                 </div>
+            </DialogContent>
 
-                <div className="sticky bottom-0 bg-slate-50 border-t border-slate-200 px-6 py-4 flex justify-end gap-3">
-                    <button
-                        onClick={onClose}
-                        className="px-6 py-2.5 text-slate-700 font-medium rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        disabled={!isValid || saveLoading}
-                        className="disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        Save Customer
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+            {/* Actions */}
+            <DialogActions>
+                <Button onClick={onClose} color="secondary" variant="outlined">
+                    Cancel
+                </Button>
+                <Button onClick={handleSave} color="primary" variant="contained" disabled={!isValid || saveLoading}>
+                    {saveLoading ? "Saving..." : "Save"}
+                </Button>
+            </DialogActions>
+        </Dialog>
+    )
 }
+
+export default AddContactModal

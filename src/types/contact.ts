@@ -10,3 +10,19 @@ export interface ContactRole {
   role_type: ContactRoleType;
 }
 export const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+export interface CustomerContactDB {
+  id: number;
+  first_name: string;
+  last_name: string;
+  direct_phone: string;
+  cell: string;
+  email: string;
+  company_name: string;
+  website: string;
+  title: string;
+  city: string;
+  state: string;
+  zip: string;
+  address: string;
+}

@@ -14,6 +14,7 @@ import ProjectViewScreen from "./components/screens/ProjectViewScreen";
 import ProjectTasks from "./components/screens/ProjectTasks";
 import RecentContactsScreen from "./components/screens/RecentContactsScreen";
 import DocumentScreen from "./components/screens/DocumentScreen";
+import ContactScreen from "./components/screens/ContactScreen";
 
 function App() {
   return (
@@ -58,6 +59,10 @@ function App() {
         />
         <Route path="/documents" element={
           <ProtectedRoute><Template content={<DocumentScreen />} /></ProtectedRoute>
+        }
+        />
+        <Route path="/customer-contacts" element={
+          <ProtectedRoute><Template content={<ContactScreen />} /></ProtectedRoute>
         }
         />
         <Route path="/quick-remedies" element={

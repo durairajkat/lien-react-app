@@ -122,6 +122,7 @@ export default function NavigationHeader({
 
                                 {/* Contacts */}
                                 <button
+                                    onClick={() => navigate("/customer-contacts")}
                                     className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors text-sm"
                                 >
                                     <Users className="w-4 h-4" />

@@ -1,6 +1,7 @@
 import { api } from "../../services/api";
 import { ApiResponse } from "../../types/api";
 import { Customer } from "../../types/customer";
+import { ProjectListRequest } from "../../types/project";
 
 export interface ProjectContact {
     id: number;
@@ -49,6 +50,17 @@ export const ProjectContactApi = api.injectEndpoints({
                 body: formData,
             }),
         }),
+         getCustomerContacts: builder.query<
+              ApiResponse<any>,
+              ProjectListRequest
+            >({
+              query: (params) => ({
+                url: "/customer-contacts",
+                method: "GET",
+                params,
+              }),
+               providesTags: ["CustomerContacts"],
+            }),
         submitCustomerContact: builder.mutation<
               ApiResponse<any>,
               Customer
@@ -58,7 +70,7 @@ export const ProjectContactApi = api.injectEndpoints({
                 method: "POST",
                 body,
               }),
-              invalidatesTags: ["ProjectContacts"],
+              invalidatesTags: ["ProjectContacts", "CustomerContacts"],
             }),
 
             submitProjectContact: builder.mutation<
@@ -72,6 +84,17 @@ export const ProjectContactApi = api.injectEndpoints({
               }),
               invalidatesTags: ["ProjectContacts"],
             }),
+            deleteCustomerContact: builder.mutation<
+              ApiResponse<any>,
+              { id: number }
+            >({
+              query: (body) => ({
+                url: "/customer-contacts/delete",
+                method: "POST",
+                body,
+              }),
+              invalidatesTags: ["CustomerContacts"],
+            }),
     }),
     overrideExisting: false,
 });
@@ -80,5 +103,7 @@ export const {
     useGetProjectContactsQuery,
     useUploadCustomerExcelMutation,
     useSubmitCustomerContactMutation,
-    useSubmitProjectContactMutation
+    useSubmitProjectContactMutation,
+    useGetCustomerContactsQuery,
+    useDeleteCustomerContactMutation,
 } = ProjectContactApi;

@@ -26,7 +26,7 @@ export default function CompanyAutocomplete({
 
             <Autocomplete
                 freeSolo
-                options={companies?.filter((c) => c.company)} // remove null names
+                options={companies && companies?.filter((c) => c.company)} // remove null names
                 getOptionLabel={(option) =>
                     typeof option === "string"
                         ? option
@@ -36,7 +36,7 @@ export default function CompanyAutocomplete({
                     typeof value !== "string" && option.id === value.id
                 }
                 value={
-                    companies?.find((c) => c.id === customer?.companyId) || null
+                    (companies ?? []).find((c) => c.id === customer?.companyId) || null
                 }
                 inputValue={inputValue}
                 onInputChange={(_, newInputValue) => {

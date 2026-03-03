@@ -3,4 +3,9 @@ export interface ApiResponse<T> {
   message: string;
   data: T;
   overall_total?: number;
+  meta?: {
+    total: number;
+    page: number;
+    per_page: number;
+  };
 }
