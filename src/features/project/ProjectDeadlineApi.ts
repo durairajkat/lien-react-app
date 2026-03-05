@@ -15,12 +15,17 @@ export const DeadlineApi = api.injectEndpoints({
         body,
       }),
     }),
-     
+
+     getAllDeadlines:builder.query<ApiResponse<any[]>, void>({
+           query: () => "/deadlines",
+           keepUnusedDataFor: 3600,
+         }),
   }),
 
   overrideExisting: false,
 });
 
 export const {
-  useCalculateDeadlineMutation
+  useCalculateDeadlineMutation,
+  useGetAllDeadlinesQuery,
 } = DeadlineApi;

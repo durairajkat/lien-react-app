@@ -16,7 +16,7 @@ export default function DeadlinesStep({ data, onNext, onBack, onSaveAndExit }: D
     const [calculatedDeadlineData, setCalculatedDeadlineData] = useState<CalculatedDeadline[]>([]);
 
      const [
-        calculatedDeadline,
+        calculatedDeadline, { isLoading: isCalculatingDeadline }
       ] = useCalculateDeadlineMutation();
 
     const doDeadlineCalculation = async () => {
@@ -86,6 +86,12 @@ export default function DeadlinesStep({ data, onNext, onBack, onSaveAndExit }: D
             </div>
 
             <div className="bg-white rounded-xl border border-slate-200 p-8">
+                {isCalculatingDeadline && (
+                    <div className="text-center py-12">
+                        <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                        <p className="text-slate-600">Calculation Deadlines ....</p>
+                    </div>
+                    )}
                 {calculatedDeadlineData.length === 0 || data.furnishingDates.length === 0 ? (
                     <div className="text-center py-12">
                         <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-4" />
@@ -97,12 +103,12 @@ export default function DeadlinesStep({ data, onNext, onBack, onSaveAndExit }: D
                             return (
                                 <div
                                     key={index}
-                                    className={`p-6 border-2 rounded-xl ${getStatusColor(deadline.daysRemaining > 30 ? 'act' :  (deadline?.daysRemaining > 0 ? 'soon' : 'urgent'))}`}
+                                    className={`p-6 border-2 rounded-xl ${getStatusColor(deadline.is_late ? 'urgent' : deadline.daysRemaining > 30 ? 'act' :  (deadline?.daysRemaining > 0 ? 'soon' : 'urgent'))}`}
                                 >
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-start gap-4 flex-1">
                                             <div className="mt-1">
-                                                {getStatusIcon(deadline.daysRemaining > 30 ? 'act' :  (deadline?.daysRemaining > 0 ? 'soon' : 'urgent'))}
+                                                {getStatusIcon(deadline.is_late ? 'urgent' : deadline.daysRemaining > 30 ? 'act' :  (deadline?.daysRemaining > 0 ? 'soon' : ''))}
                                             </div>
                                             <div className="flex-1">
                                                 <h3 className="text-lg font-bold mb-1">{deadline.title}</h3>
@@ -113,9 +119,9 @@ export default function DeadlinesStep({ data, onNext, onBack, onSaveAndExit }: D
                                                         {deadline.date}
                                                     </div>
                                                     <div>
-                                                        {deadline.daysRemaining >= 0
-                                                            ? `${deadline.daysRemaining} days remaining`
-                                                            : `${Math.abs(deadline.daysRemaining)} days overdue`
+                                                        {deadline.is_late 
+                                                            ? `${deadline.daysRemaining} days overdue`
+                                                            : `${Math.abs(deadline.daysRemaining)} days remaining`
                                                         }
                                                     </div>
                                                 </div>

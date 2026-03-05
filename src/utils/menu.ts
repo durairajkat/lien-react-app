@@ -23,7 +23,7 @@ export  const menuSections = [
     {
       title: 'Management',
       items: [
-        { id: 'deadlines', label: 'Deadlines', icon: Clock, path: '/' },
+        { id: 'deadlines', label: 'Deadlines', icon: Clock, path: '/deadlines' },
         { id: 'tasks', label: 'Tasks', icon: CheckSquare, path: '/tasks' }
       ]
     },
